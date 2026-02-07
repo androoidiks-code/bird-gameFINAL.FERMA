@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>STAR BIRD: SEASON 2- are you ready?</title>
+    <title>STAR BIRD: SEASON 2</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root { --yellow: #fcd34d; --blue: #3b82f6; --sky: #0ea5e9; --red: #f43f5e; --dark: #020617; --card: #1e293b; --bronze: #cd7f32; --silver: #c0c0c0; --gold: #ffd700; --diamond: #b9f2ff; --green: #10b981; }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--dark); color: white; text-align: center; margin: 0; padding: 10px; padding-bottom: 90px; overflow-x: hidden; touch-action: manipulation; user-select: none; }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--dark); color: white; text-align: center; margin: 0; padding: 10px; padding-bottom: 100px; overflow-x: hidden; touch-action: manipulation; user-select: none; }
         
-        #fake-alert { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); width: 90%; background: linear-gradient(90deg, #f43f5e, #f59e0b); padding: 10px; border-radius: 15px; z-index: 2000; box-shadow: 0 0 20px rgba(244, 63, 94, 0.5); transition: 0.5s; font-weight: bold; border: 2px solid white; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 13px; }
-        #fake-alert.show { top: 20px; }
+        /* СКАМ УВЕДОМЛЕНИЯ */
+        #fake-alert { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); width: 90%; background: linear-gradient(90deg, #f59e0b, #f43f5e); padding: 12px; border-radius: 15px; z-index: 3000; box-shadow: 0 5px 20px rgba(244, 63, 94, 0.6); transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); font-weight: bold; border: 2px solid white; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 13px; text-shadow: 0 1px 2px black; }
+        #fake-alert.show { top: 15px; }
 
         .header-panel { background: linear-gradient(145deg, #1e293b, #0f172a); border-radius: 20px; padding: 15px; margin-bottom: 8px; border: 1px solid #334155; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -18,7 +19,9 @@
         .val { font-size: 22px; font-weight: 800; color: var(--yellow); text-shadow: 0 0 10px rgba(252, 211, 77, 0.3); }
         .label { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
         
-        .season-title { font-size: 16px; color: var(--sky); font-weight: 900; letter-spacing: 2px; margin-bottom: 5px; text-transform: uppercase; text-shadow: 0 0 10px var(--blue); }
+        .season-title { font-size: 16px; color: var(--sky); font-weight: 900; letter-spacing: 2px; margin-bottom: 5px; text-transform: uppercase; text-shadow: 0 0 15px var(--blue); animation: pulse-title 2s infinite; }
+        @keyframes pulse-title { 0% { opacity: 0.8; } 50% { opacity: 1; text-shadow: 0 0 25px var(--sky); } 100% { opacity: 0.8; } }
+        
         .total-paid { font-size: 10px; color: var(--green); background: rgba(16, 185, 129, 0.1); padding: 4px 10px; border-radius: 10px; display: inline-block; margin-bottom: 10px; border: 1px solid var(--green); }
         .online-count { font-size: 10px; color: var(--green); margin-top: 5px; font-weight: bold; }
 
@@ -35,12 +38,16 @@
         .progress-text { font-size: 9px; color: white; position: absolute; width: 100%; top: 0; left: 0; line-height: 12px; font-weight: bold; }
 
         #scene { position: relative; width: 100%; height: 260px; background: linear-gradient(180deg, #0ea5e9 0%, #38bdf8 100%); border-radius: 24px; overflow: hidden; margin-bottom: 10px; border: 4px solid #1e293b; box-shadow: inset 0 0 50px rgba(0,0,0,0.2); transition: 0.3s; }
-        #bird-wrap { position: absolute; left: 45px; top: 50%; transform: translateY(-50%); z-index: 10; transition: top 0.8s cubic-bezier(0.45, 0.05, 0.55, 0.95); }
-        #bird { font-size: 55px; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5)); display: inline-block; animation: wing 0.4s infinite alternate; transition: transform 0.3s ease; }
-        @keyframes wing { from { transform: scaleX(-1) rotate(-12deg); } to { transform: scaleX(-1) rotate(12deg); } }
+        
+        /* ПТИЦА И ЕЕ АНИМАЦИЯ */
+        #bird-wrap { position: absolute; left: 45px; top: 50%; transform: translateY(-50%); z-index: 10; transition: top 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        #bird { font-size: 55px; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5)); display: inline-block; transition: transform 0.1s; }
+        #bird.flying { animation: wing 0.4s infinite alternate; }
+        #bird.eating { transform: scale(1.3); } /* Анимация увеличения при сборе */
+        
+        @keyframes wing { from { transform: scaleX(-1) rotate(-10deg); } to { transform: scaleX(-1) rotate(10deg); } }
         
         #multiplier { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); padding: 8px 20px; border-radius: 20px; font-size: 24px; font-weight: bold; color: var(--yellow); border: 2px solid var(--yellow); box-shadow: 0 0 20px rgba(252, 211, 77, 0.4); display: none; z-index: 20; }
-        #gain-float { position: absolute; right: 20px; top: 20px; color: var(--yellow); font-weight: bold; font-size: 20px; display: none; z-index: 25; text-shadow: 0 0 10px black; }
 
         .controls-wrapper { display: flex; flex-direction: column; gap: 8px; padding: 0 5px; }
         .btn { padding: 12px; border: none; border-radius: 18px; font-weight: bold; color: white; cursor: pointer; transition: 0.1s; border-bottom: 5px solid rgba(0,0,0,0.3); font-size: 11px; text-transform: uppercase; }
@@ -63,13 +70,16 @@
         .auto-withdraw-box { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #94a3b8; }
         .btn-play-custom { background: var(--blue); flex: 1; padding: 10px; border-radius: 15px; border: none; color: white; font-weight: bold; border-bottom: 4px solid #1e40af; text-transform: uppercase; }
 
-        /* FARM STYLES */
+        /* FARM & SCHOOL STYLES */
         .farm-panel { background: #1e293b; border-radius: 20px; padding: 15px; border: 1px solid var(--sky); margin-top: 10px; margin-bottom: 10px; }
         .farm-card { background: rgba(0,0,0,0.3); border-radius: 15px; padding: 12px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; border: 1px solid #334155; }
         .farm-info { text-align: left; }
         .farm-name { font-weight: bold; font-size: 16px; color: var(--sky); }
         .farm-status { font-size: 10px; color: #94a3b8; }
         .btn-upgrade { background: var(--green); border: none; padding: 8px 12px; border-radius: 10px; color: white; font-weight: bold; font-size: 11px; cursor: pointer; }
+        
+        .school-panel { background: #0f172a; border-radius: 20px; padding: 15px; border: 1px dashed #64748b; margin-top: 10px; text-align: center; opacity: 0.7; }
+        .school-title { color: #94a3b8; font-weight: bold; font-size: 14px; letter-spacing: 1px; }
 
         #takeBtn { background: var(--yellow); color: var(--dark); grid-column: span 2; display: none; font-size: 20px; padding: 18px; animation: pulse 1.5s infinite; border-bottom: 6px solid #d97706; width: 100%; border-radius: 20px; border: none; font-weight: 900; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
@@ -94,7 +104,6 @@
         .daily-day.claimed { opacity: 0.5; border-color: #10b981; }
         .daily-val { color: var(--yellow); font-weight: bold; display: block; margin-top: 4px; }
 
-        .star-fx { position: absolute; font-size: 24px; animation: collect 0.6s ease-out forwards; z-index: 5; }
         .cloud { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: move linear infinite; filter: blur(2px); }
         .boom { font-size: 100px; position: absolute; z-index: 100; animation: boom-anim 0.6s ease-out forwards; }
         @keyframes boom-anim { 0% { transform: scale(0) rotate(0); opacity: 1; } 50% { transform: scale(1.5) rotate(20deg); opacity: 1; } 100% { transform: scale(2.5) rotate(-20deg); opacity: 0; } }
@@ -116,7 +125,8 @@
             <div class="stat-box"><div class="label">Кошелек</div><div class="val"><span id="bal">0</span> ⭐</div></div>
             <div class="stat-box"><div class="label">В полете</div><div class="val" style="color:white"><span id="win">0</span> ⭐</div></div>
         </div>
-        <div class="online-count">🟢 ИГРОКОВ ОНЛАЙН: <span id="online-val">1290</span></div>
+        <div class="online-count">🟢 ИГРОКОВ ОНЛАЙН: <span id="online-val">1000</span></div>
+        
         <div id="league-container" class="league-badge" onclick="showLeagues()">
             <span class="league-icon" id="league-icon">🥉</span>
             <span id="league-name" class="league-bronze">Бронзовая лига</span>
@@ -130,8 +140,7 @@
 
     <div id="scene">
         <div id="multiplier">x1.00</div>
-        <div id="gain-float">+0</div>
-        <div id="bird-wrap"><div id="bird">🐦‍⬛</div></div>
+        <div id="bird-wrap"><div id="bird" class="flying">🐦‍⬛</div></div>
     </div>
 
     <div class="controls-wrapper" id="controls">
@@ -184,6 +193,11 @@
                 </div>
                 <button class="btn-upgrade" id="btn-white-action" style="background:#64748b" onclick="upgradeWhiteBird()">...</button>
             </div>
+        </div>
+
+        <div class="school-panel">
+            <div class="school-title">🎓 ШКОЛА ПТИЦ (СКОРО)</div>
+            <p style="font-size:10px; color:#475569; margin:5px 0 0;">Обучай птиц и повышай их доходность!</p>
         </div>
     </div>
 
@@ -241,33 +255,16 @@
 
     <div id="leader-modal" class="modal">
         <h2 style="margin-top:0">📊 ТОП ИГРОКОВ (S2)</h2>
-        <div id="leader-list" style="text-align:left; font-size:14px;">
-            <div style="padding:5px; border-bottom:1px solid #334155">🥇 @dimas_pro — 1,200 ⭐</div>
-            <div style="padding:5px; border-bottom:1px solid #334155">🥈 @crypto_king — 1,100 ⭐</div>
-            <div style="padding:5px; border-bottom:1px solid #334155">🥉 @masha2026 — 850 ⭐</div>
-            <div style="padding:5px; border-bottom:1px solid #334155">4. @user_992 — 490 ⭐</div>
-        </div>
+        <div id="leader-list" style="text-align:left; font-size:14px;"></div>
         <button class="btn" style="margin-top:15px; background:var(--red); width: 100%;" onclick="closeModals()">ЗАКРЫТЬ</button>
     </div>
 
     <div id="league-modal" class="modal">
         <h2 class="modal-header">🏆 СИСТЕЕМЫ ЛИГ</h2>
-        <div class="league-info-card" style="border-left-color: var(--bronze)">
-            <h4 class="league-bronze">Бронзовая <span>0-1000 ⭐</span></h4>
-            <p>Начальный уровень. Бонусы отсутствуют.</p>
-        </div>
-        <div class="league-info-card" style="border-left-color: var(--silver)">
-            <h4 class="league-silver">Серебряная <span>1000-5000 ⭐</span></h4>
-            <p>Шанс на EPIC WIN выше на 3%</p>
-        </div>
-        <div class="league-info-card" style="border-left-color: var(--gold)">
-            <h4 class="league-gold">Золотая <span>5000-10000 ⭐</span></h4>
-            <p>Шанс на Крупный Выигрыш выше на 25%</p>
-        </div>
-        <div class="league-info-card" style="border-left-color: var(--diamond)">
-            <h4 class="league-diamond">Алмазная <span>10000+ ⭐</span></h4>
-            <p>Повышенные коэффициенты +30%</p>
-        </div>
+        <div class="league-info-card" style="border-left-color: var(--bronze)"><h4 class="league-bronze">Бронзовая <span>0-1000 ⭐</span></h4><p>Начальный уровень.</p></div>
+        <div class="league-info-card" style="border-left-color: var(--silver)"><h4 class="league-silver">Серебряная <span>1000-5000 ⭐</span></h4><p>Шанс на EPIC WIN +3%</p></div>
+        <div class="league-info-card" style="border-left-color: var(--gold)"><h4 class="league-gold">Золотая <span>5000-10000 ⭐</span></h4><p>Шанс на Крупный Выигрыш +25%</p></div>
+        <div class="league-info-card" style="border-left-color: var(--diamond)"><h4 class="league-diamond">Алмазная <span>10000+ ⭐</span></h4><p>Коэффициенты +30%</p></div>
         <button class="btn-close-modal" onclick="document.getElementById('league-modal').style.display='none'">ПОНЯТНО</button>
     </div>
 
@@ -284,16 +281,16 @@
         
         let balance = 0, flightWin = 0, isGaming = false, seconds = 0, currentMult = 1.0, alreadyTaken = false, crashPoint = 0;
         let isAutoTake = false, autoTakeVal = 0;
-        let paidWithdraw = false; // Статус покупки вывода
+        let paidWithdraw = false;
 
         const dailyRewards = [25, 50, 75, 100, 250, 275, 300];
 
-        // --- FARM LOGIC ---
+        // --- FARM LOGIC (WITH CLEAR PRICES) ---
         let birdLevel = 'none'; // Синяя
-        let whiteBirdLevel = 0; // Белая (0-4)
+        let whiteBirdLevel = 0; // Белая
 
         function updateFarmUI() {
-            // 1. Синяя птица (как было)
+            // Синяя птица
             const btn = document.getElementById('btn-farm-action');
             const profit = document.getElementById('bird-profit');
             const tag = document.getElementById('bird-lvl-tag');
@@ -310,7 +307,7 @@
                 tag.innerText = "Алмаз"; tag.style.color = "var(--diamond)"; profit.innerText = "Доход: 250 ⭐ (MAX)"; btn.style.display = "none";
             }
 
-            // 2. Белая птица (НОВАЯ)
+            // Белая птица
             const wBtn = document.getElementById('btn-white-action');
             const wProfit = document.getElementById('white-profit');
             const wTag = document.getElementById('white-lvl-tag');
@@ -318,13 +315,13 @@
             if(whiteBirdLevel === 0) {
                 wTag.innerText = "(0)"; wProfit.innerText = "Доход: 0"; wBtn.innerText = "КУПИТЬ 50 (Ур 1)";
             } else if(whiteBirdLevel === 1) {
-                wTag.innerText = "(1)"; wProfit.innerText = "10 ⭐/день"; wBtn.innerText = "АП 250 (Ур 2)";
+                wTag.innerText = "(1)"; wProfit.innerText = "10 ⭐/день"; wBtn.innerText = "АПГРЕЙД 250";
             } else if(whiteBirdLevel === 2) {
-                wTag.innerText = "(2)"; wProfit.innerText = "50 ⭐/день"; wBtn.innerText = "АП 500 (Ур 3)";
+                wTag.innerText = "(2)"; wProfit.innerText = "50 ⭐/день"; wBtn.innerText = "АПГРЕЙД 500";
             } else if(whiteBirdLevel === 3) {
-                wTag.innerText = "(3)"; wProfit.innerText = "100 ⭐/день"; wBtn.innerText = "АП 1000 (БОНУС)";
+                wTag.innerText = "(3)"; wProfit.innerText = "100 ⭐/день"; wBtn.innerText = "АПГРЕЙД 1000";
             } else if(whiteBirdLevel >= 4) {
-                wTag.innerText = "MAX (x2 BIRD)"; wProfit.innerText = "100 ⭐ + 2 ПТИЦЫ В ИГРЕ"; wBtn.style.display = "none";
+                wTag.innerText = "MAX (x2)"; wProfit.innerText = "100 ⭐ + 2 ПТИЦЫ В ИГРЕ"; wBtn.style.display = "none";
             }
         }
 
@@ -354,35 +351,6 @@
             } else tg.showAlert("Недостаточно звезд!");
         }
 
-        // --- FAKE NOTIFICATIONS ---
-        const fakeNames = ["Dmitry", "Alex_VIP", "Sasha_Bet", "Ivan_Star", "Maks", "Elena", "Rich_User"];
-        function showFakeAlert() {
-            const name = fakeNames[Math.floor(Math.random()*fakeNames.length)];
-            const win = (Math.random()*5000 + 500).toFixed(0);
-            document.getElementById('fake-text').innerText = `Игрок ${name} только что выиграл ${win} ⭐!`;
-            const alert = document.getElementById('fake-alert');
-            alert.classList.add('show');
-            setTimeout(() => alert.classList.remove('show'), 4000);
-        }
-        setInterval(showFakeAlert, 15000);
-
-        // --- ONLINE COUNTER ---
-        setInterval(() => {
-            const base = 9400;
-            const rand = Math.floor(Math.random()*200 - 100);
-            document.getElementById('online-val').innerText = base + rand;
-        }, 3000);
-
-        // --- CUSTOM BET LOGIC ---
-        function flyCustom() {
-            const bet = parseInt(document.getElementById('inp-bet').value);
-            if (bet < 10) { tg.showAlert("Минимальная ставка 10 ⭐"); return; }
-            if (bet > balance) { tg.showAlert("Недостаточно звезд!"); return; }
-            isAutoTake = document.getElementById('chk-auto').checked;
-            autoTakeVal = parseInt(document.getElementById('inp-auto').value);
-            fly(bet, 'custom');
-        }
-
         // --- DAILY BONUS FIXED ---
         function checkDaily(manual = false) {
             const now = Date.now();
@@ -391,18 +359,15 @@
             let streak = parseInt(localStorage.getItem('daily_streak') || 0);
 
             if (timeLeft <= 0) {
-                // Можно забрать
                 document.getElementById('btn-claim-daily').disabled = false;
                 document.getElementById('btn-claim-daily').innerText = "ЗАБРАТЬ НАГРАДУ";
                 if(manual) document.getElementById('daily-modal').style.display = 'block';
             } else {
-                // Таймер
                 document.getElementById('btn-claim-daily').disabled = true;
                 if(manual) document.getElementById('daily-modal').style.display = 'block';
                 updateTimer(timeLeft);
             }
             
-            // Рендер дней
             for (let i = 1; i <= 7; i++) {
                 const el = document.getElementById(`d-day-${i}`);
                 el.className = 'daily-day';
@@ -413,9 +378,10 @@
 
         function updateTimer(ms) {
             const btn = document.getElementById('btn-claim-daily');
-            const loop = setInterval(() => {
+            if(window.dailyTimer) clearInterval(window.dailyTimer);
+            window.dailyTimer = setInterval(() => {
                 ms -= 1000;
-                if(ms <= 0) { clearInterval(loop); checkDaily(); return; }
+                if(ms <= 0) { clearInterval(window.dailyTimer); checkDaily(); return; }
                 const h = Math.floor(ms / 3600000);
                 const m = Math.floor((ms % 3600000) / 60000);
                 const s = Math.floor((ms % 60000) / 1000);
@@ -426,7 +392,7 @@
         async function claimDaily() {
             const btn = document.getElementById('btn-claim-daily');
             if(btn.disabled) return;
-            btn.disabled = true; // Защита от дабл-клика
+            btn.disabled = true; 
 
             try {
                 const r = await fetch(`${API}/claim_daily`, {
@@ -439,26 +405,13 @@
                     localStorage.setItem('daily_streak', parseInt(localStorage.getItem('daily_streak')||0)+1);
                     localStorage.setItem('last_daily_claim', Date.now());
                     updateUI();
-                    document.getElementById('daily-modal').style.display = 'none'; // Закрыть плашку
+                    document.getElementById('daily-modal').style.display = 'none'; 
                     tg.showAlert("Награда получена!");
                 } else {
-                    tg.showAlert("Ошибка или время не пришло!");
+                    tg.showAlert("Еще не время!");
+                    checkDaily(); // Сброс таймера
                 }
-            } catch(e) {}
-        }
-
-        function updateCooldowns() {
-            const now = Date.now();
-            const freeLast = localStorage.getItem('free_cooldown') || 0;
-            const freeLeft = (8 * 3600 * 1000) - (now - freeLast);
-            const btnFree = document.getElementById('btn-free');
-            if (freeLeft > 0) {
-                btnFree.disabled = true;
-                btnFree.innerText = `⏳ ${new Date(freeLeft).toISOString().substr(11, 5)}`;
-            } else {
-                btnFree.disabled = false;
-                btnFree.innerText = `🚀 БЕСПЛАТНО`;
-            }
+            } catch(e) { btn.disabled = false; }
         }
 
         // --- GAME LOGIC ---
@@ -479,11 +432,9 @@
             
             document.getElementById('controls').style.display = 'none';
             document.getElementById('takeBtn').style.display = 'block';
-            document.getElementById('takeBtn').innerText = "💰 ЗАБРАТЬ";
             document.getElementById('takeBtn').disabled = false;
             document.getElementById('multiplier').style.display = 'block';
 
-            // ЛОГИКА 4 УРОВНЯ БЕЛОЙ ПТИЦЫ (2 Птицы)
             if(whiteBirdLevel >= 4) {
                 const b2 = document.createElement('div');
                 b2.id = 'bird2';
@@ -519,6 +470,11 @@
                     document.getElementById('multiplier').innerText = `x${currentMult.toFixed(2)}`;
                     document.getElementById('bird-wrap').style.top = (25 + Math.random()*50) + '%';
                     
+                    // Анимация увеличения (поедания)
+                    const b = document.getElementById('bird');
+                    b.classList.add('eating');
+                    setTimeout(() => b.classList.remove('eating'), 200);
+
                     if (isAutoTake && flightWin >= autoTakeVal) { take(); }
                     document.getElementById('snd_pop').play().catch(()=>{});
                 }
@@ -530,25 +486,21 @@
             alreadyTaken = true;
             balance += flightWin; updateUI();
             tg.HapticFeedback.notificationOccurred('success');
-            document.getElementById('takeBtn').innerText = "🚀 ПТИЧКА ЛЕТИТ...";
             document.getElementById('takeBtn').disabled = true;
         }
 
         function end() {
             clearInterval(window.timer);
             isGaming = false;
-            // Удаляем вторую птицу если была
             if(document.getElementById('bird2')) document.getElementById('bird2').remove();
 
-            const scene = document.getElementById('scene');
             const b = document.createElement('div');
             b.className = 'boom'; b.innerText = '💥';
             b.style.left = '50px'; b.style.top = document.getElementById('bird-wrap').style.top;
-            scene.appendChild(b);
+            document.getElementById('scene').appendChild(b);
             document.getElementById('snd_crash').play().catch(()=>{});
             setTimeout(() => { b.remove(); }, 600);
             
-            addHistory(finalWin, currentMult);
             document.getElementById('controls').style.display = 'flex';
             document.getElementById('takeBtn').style.display = 'none';
             document.getElementById('multiplier').style.display = 'none';
@@ -556,24 +508,36 @@
             updateUI(); syncBalance();
         }
 
-        function addHistory(win, m) {
-            const list = document.getElementById('hist-list');
-            const item = document.createElement('div');
-            item.className = `hist-item ${win > 0 ? 'hist-win' : 'hist-crash'}`;
-            item.innerHTML = `<span>${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span><span>${win > 0 ? '+'+win : 'КРАШ'}</span><span>x${m.toFixed(2)}</span>`;
-            list.prepend(item);
+        // --- SCAM NOTIFICATIONS & RANDOM LEADERBOARD ---
+        const fakeNames = ["Titan", "CryptoLord", "ElonM", "Whale_99", "LuckyGuy", "Anna_Pro", "Satoshi", "Winner2026"];
+        function showFakeAlert() {
+            const name = fakeNames[Math.floor(Math.random()*fakeNames.length)];
+            const win = Math.floor(Math.random() * (2000 - 150 + 1)) + 150; // От 150 до 2000
+            document.getElementById('fake-text').innerText = `🔥 ${name} выиграл ${win} ⭐!`;
+            const alert = document.getElementById('fake-alert');
+            alert.classList.add('show');
+            setTimeout(() => alert.classList.remove('show'), 4000);
+        }
+        setInterval(showFakeAlert, 12000);
+
+        function showLeaderboard() {
+            const list = document.getElementById('leader-list');
+            list.innerHTML = "";
+            const topNames = ["Alpha", "Beta", "Omega", "Richie", "StarKing"];
+            topNames.forEach((n, i) => {
+                const score = Math.floor(Math.random() * 50000) + 10000;
+                list.innerHTML += `<div style="padding:8px; border-bottom:1px solid #334155; display:flex; justify-content:space-between;"><span>${i+1}. ${n}</span> <span style="color:#fcd34d; font-weight:bold;">${score} ⭐</span></div>`;
+            });
+            document.getElementById('leader-modal').style.display = 'block';
         }
 
         // --- WITHDRAW LOGIC ---
         function showGiveaway() { 
-            // Проверяем условия для галочек
             const cond1 = document.getElementById('cond-1');
             const cond2 = document.getElementById('cond-2');
             const cond3 = document.getElementById('cond-3');
             
             cond1.innerText = balance >= 1000 ? "✅ Баланс 1000+" : "❌ Баланс 1000+";
-            // Тут имитация проверки друзей (для примера > 5)
-            // Реально нужно брать из API
             cond2.innerText = "✅ 5 Друзей (Тест)"; 
             cond3.innerText = paidWithdraw ? "✅ Доступ куплен" : "❌ Доступ к выводу";
 
@@ -587,15 +551,11 @@
                 btnBuy.style.display = 'block';
                 btnReq.disabled = true;
             }
-
             document.getElementById('giveaway-modal').style.display = 'block'; 
         }
 
         function buyWithdraw() {
-            // Отправляем команду боту через API (или закрываем окно)
-            // В реальном WebApp лучше использовать invoiceUrl
-            tg.close(); // Закрываем чтобы юзер нажал кнопку в боте, или...
-            // Вариант: отправляем запрос на создание инвойса
+            tg.close();
             fetch(`${API}/create_withdraw_invoice`, {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({user_id: userId})
@@ -603,34 +563,39 @@
             tg.showAlert("Счет выставлен в боте! Оплатите 150 ⭐");
         }
 
-        function requestWithdraw() {
-            // Логика запроса вывода
-            tg.showAlert("Заявка отправлена администратору!");
-        }
+        function requestWithdraw() { tg.showAlert("Заявка отправлена администратору!"); }
 
         // --- SYNC ---
         async function syncBalance() {
             fetch(`${API}/update_balance`, { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ 
-                    user_id: userId, 
-                    balance: balance,
-                    bird_level: birdLevel,
-                    white_bird_level: whiteBirdLevel
-                }) 
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ user_id: userId, balance: balance, bird_level: birdLevel, white_bird_level: whiteBirdLevel }) 
             }).catch(()=>{});
         }
 
-        function showLeaderboard() { document.getElementById('leader-modal').style.display = 'block'; }
-        function showFriends() { document.getElementById('friends-modal').style.display = 'block'; }
-        function createClouds() {
-            for(let i=0; i<6; i++){
-                let c = document.createElement('div'); c.className = 'cloud';
-                c.style.cssText = `width:60px; height:20px; top:${Math.random()*210}px; right:-120px; animation: move ${5+Math.random()*5}s linear infinite;`;
-                document.getElementById('scene').appendChild(c);
+        function updateCooldowns() {
+            const now = Date.now();
+            const freeLast = localStorage.getItem('free_cooldown') || 0;
+            const freeLeft = (8 * 3600 * 1000) - (now - freeLast);
+            const btnFree = document.getElementById('btn-free');
+            if (freeLeft > 0) {
+                btnFree.disabled = true;
+                btnFree.innerText = `⏳ ${new Date(freeLeft).toISOString().substr(11, 5)}`;
+            } else {
+                btnFree.disabled = false;
+                btnFree.innerText = `🚀 БЕСПЛАТНО`;
             }
         }
+
+        function flyCustom() {
+            const bet = parseInt(document.getElementById('inp-bet').value);
+            if (bet < 10) { tg.showAlert("Минимальная ставка 10 ⭐"); return; }
+            if (bet > balance) { tg.showAlert("Недостаточно звезд!"); return; }
+            isAutoTake = document.getElementById('chk-auto').checked;
+            autoTakeVal = parseInt(document.getElementById('inp-auto').value);
+            fly(bet, 'custom');
+        }
+
         function createTrail() {
             const trail = document.createElement('div'); trail.innerText = '✨'; 
             trail.style.cssText = `position:absolute; left:45px; top:${document.getElementById('bird-wrap').style.top}; font-size:15px; opacity:0.8; transition:all 0.8s linear;`;
@@ -639,19 +604,28 @@
         }
         function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
         function showLeagues() { document.getElementById('league-modal').style.display = 'block'; }
+        function showFriends() { document.getElementById('friends-modal').style.display = 'block'; }
+        function createClouds() {
+            for(let i=0; i<6; i++){
+                let c = document.createElement('div'); c.className = 'cloud';
+                c.style.cssText = `width:60px; height:20px; top:${Math.random()*210}px; right:-120px; animation: move ${5+Math.random()*5}s linear infinite;`;
+                document.getElementById('scene').appendChild(c);
+            }
+        }
         
         // ИНИЦИАЛИЗАЦИЯ
         createClouds();
+        setInterval(() => {
+            const base = 9400; const rand = Math.floor(Math.random()*200 - 100);
+            document.getElementById('online-val').innerText = base + rand;
+        }, 3000);
+
         fetch(`${API}/get_user?user_id=${userId}`).then(r => r.json()).then(d => { 
             balance = d.balance || 0; 
             birdLevel = d.bird_level || 'none';
             whiteBirdLevel = d.white_bird_level || 0;
             paidWithdraw = d.paid_withdraw || false;
-            
-            // Если сброс сезона (сервер вернул 0, а у нас локально мб старое)
-            updateUI(); 
-            updateFarmUI();
-            checkDaily();
+            updateUI(); updateFarmUI(); checkDaily();
         });
         setInterval(updateCooldowns, 1000);
     </script>
