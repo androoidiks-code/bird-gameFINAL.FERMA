@@ -3,103 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ЛИФТ: СТРАТЕГИЯ УДАЧИ</title>
+    <title>ЛИФТ: ПРЕМИУМ S2</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --gold: #f59e0b; --gold-glow: rgba(245, 158, 11, 0.4);
-            --vip: #8b5cf6; --vip-glow: rgba(139, 92, 246, 0.4);
+            --gold: #f59e0b; --gold-glow: rgba(245, 158, 11, 0.5);
+            --vip: #a855f7; --vip-glow: rgba(168, 85, 247, 0.5);
             --bg: #020617; --card: #0f172a; --text-muted: #94a3b8;
             --green: #10b981; --red: #ef4444;
         }
 
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: 'Montserrat', sans-serif;
             background: var(--bg); color: white; margin: 0; padding: 15px;
             padding-bottom: 140px; overflow-x: hidden;
         }
 
         .glass {
             background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
         .header {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
-        .balance-val { font-size: 24px; font-weight: 900; color: var(--gold); }
+        .balance-box { text-align: right; }
+        .balance-val { font-size: 26px; font-weight: 900; color: var(--gold); text-shadow: 0 0 15px var(--gold-glow); }
 
         /* --- BANK WINDOW --- */
         .bank-window {
-            padding: 20px; text-align: center; margin-bottom: 20px;
-            background: radial-gradient(circle at top right, rgba(245, 158, 11, 0.15), transparent);
+            padding: 25px; text-align: center; margin-bottom: 20px;
+            background: radial-gradient(circle at top right, rgba(245, 158, 11, 0.1), transparent);
+            border: 1px solid rgba(245, 158, 11, 0.2);
         }
 
-        .bank-amount { font-size: 32px; font-weight: 900; margin-bottom: 15px; }
+        .bank-amount { font-size: 34px; font-weight: 900; margin-bottom: 15px; letter-spacing: -1px; }
 
-        .progress-container { width: 100%; height: 12px; background: #1e293b; border-radius: 10px; overflow: hidden; }
-        .progress-bar { height: 100%; width: 0%; background: var(--gold); transition: 1s ease-in-out; }
+        .progress-container { width: 100%; height: 14px; background: #1e293b; border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--gold), #fbbf24); box-shadow: 0 0 20px var(--gold); transition: 1.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
 
-        /* --- TICKET SELECTION --- */
+        /* --- MODES --- */
         .ticket-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; }
-        .ticket-card { padding: 15px; text-align: center; cursor: pointer; border: 2px solid transparent; }
-        .ticket-card.active { border-color: var(--gold); background: rgba(245, 158, 11, 0.1); }
-        .ticket-card.vip.active { border-color: var(--vip); background: rgba(139, 92, 246, 0.1); }
+        .ticket-card { padding: 18px; text-align: center; cursor: pointer; border: 2px solid transparent; transition: 0.3s; }
+        .ticket-card h3 { margin: 0; font-size: 12px; letter-spacing: 1px; opacity: 0.8; }
+        .ticket-card .price { font-size: 20px; font-weight: 900; margin-top: 5px; }
 
-        /* --- VISUAL LIFT (ГРАФИЧЕСКАЯ ТАБЛИЦА) --- */
+        .ticket-card#mode-standard.active { border-color: var(--gold); background: rgba(245, 158, 11, 0.1); box-shadow: 0 0 20px rgba(245, 158, 11, 0.2); }
+        .ticket-card#mode-vip.active { border-color: var(--vip); background: rgba(168, 85, 247, 0.1); box-shadow: 0 0 20px rgba(168, 85, 247, 0.2); }
+
+        /* --- VISUAL LIFT --- */
         .visual-queue {
-            display: flex; flex-direction: column-reverse; gap: 8px;
-            padding: 15px; margin-bottom: 20px; min-height: 200px;
-            background: linear-gradient(to top, rgba(15, 23, 42, 0.8), transparent);
-            border-radius: 15px; position: relative;
+            display: flex; flex-direction: column-reverse; gap: 10px;
+            padding: 20px; margin-bottom: 25px; background: rgba(15, 23, 42, 0.5); border-radius: 24px;
         }
         .lift-floor {
-            height: 40px; display: flex; align-items: center; padding: 0 15px;
-            background: rgba(255,255,255,0.03); border-radius: 8px;
-            border-left: 3px solid #334155; transition: 0.5s;
+            height: 45px; display: flex; align-items: center; padding: 0 20px;
+            background: rgba(255,255,255,0.02); border-radius: 12px; border-left: 4px solid #334155; transition: 0.5s;
         }
-        .lift-floor.active { border-left-color: var(--gold); background: rgba(245, 158, 11, 0.1); }
-        .floor-num { width: 30px; font-size: 10px; color: var(--text-muted); }
-        .user-tag { font-size: 13px; font-weight: 600; }
+        .lift-floor.active { border-left-color: var(--gold); background: rgba(245, 158, 11, 0.15); transform: scale(1.02); }
+        .floor-num { width: 40px; font-weight: 900; color: var(--text-muted); font-size: 14px; }
+        .user-tag { font-size: 14px; font-weight: 700; letter-spacing: 0.5px; }
+
+        /* --- BOOSTER --- */
+        .boost-box { padding: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .boost-btn { 
+            width: auto !important; padding: 12px 25px !important; background: var(--green) !important; 
+            font-size: 14px !important; box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+        }
+        .boost-btn:disabled { background: #334155 !important; box-shadow: none !important; opacity: 0.5; cursor: not-allowed; }
 
         /* --- BUTTONS --- */
-        .footer { position: fixed; bottom: 0; left: 0; width: 100%; padding: 20px; box-sizing: border-box; background: var(--bg); }
+        .footer { position: fixed; bottom: 0; left: 0; width: 100%; padding: 25px; box-sizing: border-box; background: linear-gradient(to top, var(--bg) 80%, transparent); }
         .main-btn {
-            width: 100%; padding: 18px; border-radius: 16px; border: none; font-size: 16px; font-weight: 900;
-            text-transform: uppercase; cursor: pointer; transition: 0.3s;
+            width: 100%; padding: 20px; border-radius: 20px; border: none; font-size: 16px; font-weight: 900;
+            text-transform: uppercase; cursor: pointer; transition: 0.3s; color: black;
         }
-        .boost-btn:disabled { opacity: 0.3; filter: grayscale(1); }
 
+        /* --- WIN MODAL FOR SCREENSHOTS --- */
         #win-modal {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000;
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000;
             display: none; flex-direction: column; align-items: center; justify-content: center;
+            backdrop-filter: blur(10px);
         }
+        .win-card {
+            padding: 50px 30px; text-align: center; border: 2px solid var(--gold);
+            max-width: 80%; width: 320px; background: radial-gradient(circle, #1e293b, #020617);
+        }
+        .win-amount { font-size: 48px; font-weight: 900; color: var(--gold); margin: 20px 0; text-shadow: 0 0 30px var(--gold); }
     </style>
 </head>
 <body>
 
     <div id="win-modal">
-        <div class="glass" style="padding:40px; text-align:center; border:2px solid var(--gold)">
-            <h1 style="color:var(--gold)">ПОБЕДА!</h1>
-            <div style="font-size:42px; margin:20px 0" id="win-sum">5000 ⭐</div>
-            <button class="main-btn" style="background:var(--gold)" onclick="location.reload()">ЗАБРАТЬ ⭐</button>
+        <div class="glass win-card">
+            <div style="font-size: 60px;">💰</div>
+            <h1 style="margin: 10px 0; font-weight: 900; letter-spacing: 2px;">ПОБЕДА</h1>
+            <p style="color: var(--text-muted); font-size: 12px;">ВАШ ВЫИГРЫШ СОСТАВИЛ:</p>
+            <div class="win-amount" id="win-sum">5000 ⭐</div>
+            <p style="font-size: 10px; opacity: 0.6; margin-bottom: 30px;">ID ТРАНЗАКЦИИ: #LIFT-S2-SYNC</p>
+            <button class="main-btn" style="background:var(--gold)" onclick="location.reload()">ЗАБРАТЬ И ВЕРНУТЬСЯ</button>
         </div>
     </div>
 
     <div class="header">
-        <div style="font-weight:900; font-size:22px;">ЛИФТ <span style="color:var(--gold)">S2</span></div>
-        <div style="text-align:right">
-            <span style="font-size:10px; color:var(--text-muted)">БАЛАНС</span>
+        <div style="font-weight:900; font-size:24px; letter-spacing: 2px;">ЛИФТ <span style="color:var(--gold)">S2</span></div>
+        <div class="balance-box">
+            <span style="font-size:10px; color:var(--text-muted); font-weight:700;">МОЙ СЧЕТ</span>
             <div class="balance-val" id="user-balance">0 ⭐</div>
         </div>
     </div>
 
     <div class="glass bank-window">
-        <div id="pool-title" style="font-size:12px; color:var(--text-muted); margin-bottom:10px">НАПОЛНЕНИЕ ЛИФТА</div>
+        <div id="pool-title" style="font-size:11px; color:var(--text-muted); font-weight:700; margin-bottom:12px; letter-spacing: 1px;">РЕЗЕРВ ТЕКУЩЕГО ЭТАЖА</div>
         <div class="bank-amount" id="pool-display">0 / 5,000 ⭐</div>
         <div class="progress-container">
             <div class="progress-bar" id="pool-bar"></div>
@@ -109,23 +130,23 @@
     <div class="ticket-grid">
         <div class="glass ticket-card active" id="mode-standard" onclick="selectMode('standard')">
             <h3>СТАНДАРТ</h3>
-            <div style="color:var(--gold); font-weight:bold">500 ⭐</div>
+            <div class="price" style="color:var(--gold)">500 ⭐</div>
         </div>
         <div class="glass ticket-card" id="mode-vip" onclick="selectMode('vip')">
             <h3>VIP ЛИФТ</h3>
-            <div style="color:var(--vip); font-weight:bold">2500 ⭐</div>
+            <div class="price" style="color:var(--vip)">2500 ⭐</div>
         </div>
     </div>
 
-    <div style="font-size:12px; color:var(--text-muted); margin-bottom:10px">ЛИФТ В ДВИЖЕНИИ (ОЧЕРЕДЬ):</div>
+    <div style="font-size:11px; color:var(--text-muted); font-weight:700; margin-bottom:12px; letter-spacing: 1px;">ОЧЕРЕДЬ НА ПОДЪЕМ:</div>
     <div class="visual-queue" id="visual-queue"></div>
 
-    <div class="glass" style="padding:15px; display:flex; justify-content:space-between; align-items:center">
+    <div class="glass boost-box">
         <div>
-            <div style="font-weight:bold; font-size:14px">🚀 Ускоритель</div>
+            <div style="font-weight:900; font-size:15px">🚀 УСКОРИТЕЛЬ</div>
             <div style="font-size:11px; color:var(--text-muted)">Прыжок на 3 этажа вверх</div>
         </div>
-        <button class="main-btn" id="boost-btn" style="width:auto; padding:10px 20px; background:var(--green); font-size:12px" onclick="buyBoost()">250 ⭐</button>
+        <button class="main-btn boost-btn" id="boost-btn" onclick="buyBoost()" disabled>250 ⭐</button>
     </div>
 
     <div class="footer">
@@ -136,7 +157,7 @@
         const tg = window.Telegram.WebApp;
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('user_id') || "336447936";
-        const SERVER_IP = "85.198.96.191"; // Твой внешний IP
+        const SERVER_IP = "85.198.96.191"; 
         
         let currentMode = 'standard';
         let userData = { balance: 0, pos: null, pool: 0 };
@@ -151,34 +172,44 @@
                 userData.pos = currentMode === 'standard' ? data.pos_std : data.pos_vip;
 
                 updateUI();
-            } catch (e) { console.error("Ошибка синхронизации"); }
+            } catch (e) { console.error("Sync Error"); }
         }
 
         function updateUI() {
-            const config = { standard: 5000, vip: 25000 };
-            const target = config[currentMode];
+            const config = { standard: {target: 5000, price: 500, color: '#f59e0b'}, vip: {target: 25000, price: 2500, color: '#a855f7'} };
+            const cfg = config[currentMode];
             
-            document.getElementById('user-balance').innerText = userData.balance + " ⭐";
-            document.getElementById('pool-display').innerText = `${userData.pool} / ${target} ⭐`;
+            document.getElementById('user-balance').innerText = userData.balance.toLocaleString() + " ⭐";
+            document.getElementById('pool-display').innerText = `${userData.pool.toLocaleString()} / ${cfg.target.toLocaleString()} ⭐`;
             
-            const percent = (userData.pool / target) * 100;
-            document.getElementById('pool-bar').style.width = percent + "%";
+            const percent = (userData.pool / cfg.target) * 100;
+            const bar = document.getElementById('pool-bar');
+            bar.style.width = percent + "%";
+            bar.style.background = cfg.color;
 
-            document.getElementById('boost-btn').disabled = (userData.balance < 250 || !userData.pos);
+            // БЛОКИРОВКА УСКОРИТЕЛЯ
+            const bBtn = document.getElementById('boost-btn');
+            if (userData.balance < 250 || !userData.pos) {
+                bBtn.disabled = true;
+            } else {
+                bBtn.disabled = false;
+            }
 
             const btn = document.getElementById('action-btn');
-            if (userData.pos === 1 && userData.pool >= target) {
+            if (userData.pos === 1 && userData.pool >= cfg.target) {
                 btn.innerText = "ВЫВЕСТИ ВЫИГРЫШ!";
                 btn.style.background = "var(--green)";
+                btn.disabled = false;
             } else if (userData.pos) {
                 btn.innerText = `ВАШ ЭТАЖ: ${userData.pos}`;
                 btn.disabled = true;
                 btn.style.background = "#1e293b";
+                btn.style.color = "white";
             } else {
-                const price = currentMode === 'standard' ? 500 : 2500;
-                btn.innerText = `ВСТАТЬ В ОЧЕРЕДЬ (${price} ⭐)`;
+                btn.innerText = `ВСТАТЬ В ОЧЕРЕДЬ (${cfg.price} ⭐)`;
                 btn.disabled = false;
-                btn.style.background = "var(--gold)";
+                btn.style.background = cfg.color;
+                btn.style.color = currentMode === 'vip' ? 'white' : 'black';
             }
 
             renderQueue();
@@ -192,7 +223,7 @@
                 floor.className = 'lift-floor' + (userData.pos === i ? ' active' : '');
                 floor.innerHTML = `
                     <div class="floor-num">${i}</div>
-                    <div class="user-tag">${userData.pos === i ? 'ЭТО ВЫ' : 'Игрок ID...'}</div>
+                    <div class="user-tag">${userData.pos === i ? 'ВЫ НА ЭТАЖЕ' : 'Игрок #' + (1000 + i)}</div>
                 `;
                 container.appendChild(floor);
             }
@@ -207,23 +238,31 @@
 
         function handleAction() {
             const price = currentMode === 'standard' ? 500 : 2500;
-            
-            if (userData.pos === 1 && userData.pool >= (currentMode === 'standard' ? 5000 : 25000)) {
+            const target = currentMode === 'standard' ? 5000 : 25000;
+
+            if (userData.pos === 1 && userData.pool >= target) {
                 fetch(`http://${SERVER_IP}:8080/request_withdraw?user_id=${userId}&mode=${currentMode}`);
-                tg.showAlert("✅ Заявка на вывод отправлена админу!");
+                showWinModal(target);
             } else if (userData.balance < price) {
-                tg.showAlert("Недостаточно звезд на балансе. Пожалуйста, пополните счет в боте.");
+                tg.showAlert("❌ Недостаточно звезд. Пополните баланс в боте!");
             } else {
-                tg.showConfirm(`Списать ${price} ⭐ с баланса и войти в Лифт?`, (ok) => {
-                    if(ok) tg.showAlert("Вы успешно вошли в очередь!");
+                tg.showConfirm(`Подтверждаете списание ${price} ⭐?`, (ok) => {
+                    if(ok) tg.showAlert("✅ Вы вошли в очередь!");
                 });
             }
         }
 
         function buyBoost() {
-            tg.showConfirm("Ускориться на 3 этажа за 250 ⭐?", (ok) => {
-                if(ok) tg.showAlert("Ракета запущена! Ожидайте сдвига.");
-            });
+            if(userData.balance >= 250) {
+                tg.showConfirm("🚀 Активировать ускоритель за 250 ⭐?", (ok) => {
+                    if(ok) tg.showAlert("Ускорение активировано! Ожидайте обновления позиции.");
+                });
+            }
+        }
+
+        function showWinModal(amount) {
+            document.getElementById('win-sum').innerText = amount + " ⭐";
+            document.getElementById('win-modal').style.display = 'flex';
         }
 
         setInterval(syncData, 5000);
