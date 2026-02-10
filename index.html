@@ -3,80 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>STAR BIRD: EMPIRE</title>
+    <title>STAR BIRD: GALAXY WAR</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root { 
             --gold: #fbbf24; --gold-glow: #d97706;
             --neon-blue: #0ea5e9; --neon-red: #f43f5e; --neon-green: #10b981;
-            --bg-dark: #020617; --panel: rgba(30, 41, 59, 0.9);
+            --bg-dark: #020617;
         }
         
         body { 
             font-family: 'Segoe UI', Roboto, sans-serif; 
-            background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
-            color: white; margin: 0; padding: 10px; padding-bottom: 120px;
+            background: #020617; color: white; margin: 0; padding: 10px; padding-bottom: 100px;
             overflow-x: hidden; user-select: none; -webkit-tap-highlight-color: transparent;
         }
 
-        /* --- ANIMATIONS --- */
+        /* --- ANIMATIONS & FX --- */
         @keyframes pulse-gold { 0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(251, 191, 36, 0); } 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); } }
-        @keyframes slide-down { from { transform: translateY(-100%); } to { transform: translateY(0); } }
-        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-5px); } 100% { transform: translateY(0px); } }
-        @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
+        @keyframes radar { 0% { transform: scale(0); opacity: 0.5; } 100% { transform: scale(2); opacity: 0; } }
 
-        /* --- TOP BAR & HERO --- */
+        /* --- UI COMPONENTS --- */
         .top-bar { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #94a3b8; margin-bottom: 10px; }
         .online-badge { color: var(--neon-green); font-weight: bold; display: flex; align-items: center; gap: 5px; }
         .online-dot { width: 8px; height: 8px; background: var(--neon-green); border-radius: 50%; box-shadow: 0 0 10px var(--neon-green); }
 
         .hero-banner {
-            background: linear-gradient(90deg, #3b0764, #7e22ce);
-            padding: 10px; border-radius: 12px; margin-bottom: 15px;
-            display: flex; align-items: center; gap: 10px;
-            border: 1px solid rgba(255,255,255,0.1);
-            animation: slide-down 0.5s ease;
+            background: linear-gradient(90deg, #4c1d95, #7c3aed);
+            padding: 10px; border-radius: 12px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;
+            border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
         }
         .hero-avatar { width: 40px; height: 40px; background: #fbbf24; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; border: 2px solid white; }
         .hero-info div:first-child { font-size: 10px; color: #e9d5ff; text-transform: uppercase; letter-spacing: 1px; }
         .hero-info div:last-child { font-weight: bold; font-size: 14px; color: white; }
 
-        /* --- MAIN STATS --- */
         .balance-card {
-            background: linear-gradient(180deg, rgba(30,41,59,0.8), rgba(15,23,42,0.9));
+            background: linear-gradient(180deg, #1e293b, #0f172a);
             border-radius: 20px; padding: 15px; text-align: center;
-            border: 1px solid rgba(255,255,255,0.05); position: relative;
-            backdrop-filter: blur(10px); margin-bottom: 15px;
+            border: 1px solid #334155; position: relative; margin-bottom: 15px;
         }
-        .balance-val { font-size: 36px; font-weight: 900; background: linear-gradient(to right, #fbbf24, #f59e0b); -webkit-background-clip: text; color: transparent; text-shadow: 0 5px 20px rgba(251, 191, 36, 0.3); }
+        .balance-val { font-size: 36px; font-weight: 900; background: linear-gradient(to right, #fbbf24, #f59e0b); -webkit-background-clip: text; color: transparent; text-shadow: 0 5px 20px rgba(251, 191, 36, 0.2); }
         
-        /* OXYGEN */
         .oxygen-container { margin-top: 10px; position: relative; }
-        .oxygen-bar { height: 8px; background: #334155; border-radius: 4px; overflow: hidden; }
+        .oxygen-bar { height: 10px; background: #334155; border-radius: 5px; overflow: hidden; border: 1px solid #475569; }
         .oxygen-fill { height: 100%; width: 100%; background: linear-gradient(90deg, #ef4444, #eab308, #22c55e); transition: width 0.5s; }
-        .oxygen-label { display: flex; justify-content: space-between; font-size: 10px; color: #cbd5e1; margin-bottom: 3px; }
+        .oxygen-label { display: flex; justify-content: space-between; font-size: 10px; color: #cbd5e1; margin-bottom: 3px; font-weight: bold; }
 
-        /* --- SCENE (DUEL & ETERNAL) --- */
+        /* --- GAME SCENE --- */
         #scene {
-            height: 200px; background: url('https://w.wallhaven.cc/full/7p/wallhaven-7p39gy.jpg'); 
-            background-size: cover; border-radius: 16px; position: relative; 
+            height: 240px; background: url('https://w.wallhaven.cc/full/7p/wallhaven-7p39gy.jpg'); 
+            background-size: cover; background-position: center; border-radius: 16px; position: relative; 
             border: 2px solid #475569; overflow: hidden; margin-bottom: 15px;
             box-shadow: inset 0 0 60px black;
         }
-        .bird { position: absolute; font-size: 40px; transition: top 0.3s ease-out; filter: drop-shadow(0 0 10px black); z-index: 10; }
-        .bird-me { left: 20px; top: 40%; }
+        .bird { position: absolute; font-size: 45px; z-index: 10; filter: drop-shadow(0 0 10px black); transition: transform 0.1s linear; }
+        .bird-me { left: 20px; top: 30%; }
         .bird-en { left: 20px; top: 60%; filter: grayscale(1) drop-shadow(0 0 5px red); display: none; }
-        .flying { animation: fly 0.3s infinite alternate; }
-        @keyframes fly { from { transform: rotate(-5deg); } to { transform: rotate(10deg); } }
+        
+        .star-item { position: absolute; font-size: 20px; color: #fbbf24; z-index: 5; text-shadow: 0 0 10px #fbbf24; animation: star-spin 1s infinite linear; }
+        @keyframes star-spin { 0% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.2); } 100% { transform: rotate(360deg) scale(1); } }
 
-        /* VS SCREEN */
-        #vs-screen { 
-            position: absolute; inset: 0; background: rgba(0,0,0,0.9); z-index: 20; 
+        .explosion { position: absolute; font-size: 80px; z-index: 20; animation: shake 0.5s; }
+
+        /* --- OVERLAYS --- */
+        #search-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.9); z-index: 50; 
             display: none; flex-direction: column; align-items: center; justify-content: center;
         }
-        .vs-logo { font-size: 60px; font-weight: 900; color: var(--neon-red); text-shadow: 0 0 20px var(--neon-red); animation: float 1s infinite; }
+        .radar { width: 80px; height: 80px; border: 2px solid var(--neon-green); border-radius: 50%; position: relative; }
+        .radar::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: var(--neon-green); animation: radar 1.5s infinite; }
+        .radar-line { position: absolute; top: 50%; left: 50%; width: 50%; height: 2px; background: var(--neon-green); transform-origin: 0 0; animation: spin-radar 2s infinite linear; }
+        @keyframes spin-radar { 100% { transform: rotate(360deg); } }
 
-        /* --- GAME MODES --- */
+        #eternal-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.85); z-index: 40;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .multiplier-text { font-size: 48px; font-weight: 900; color: var(--gold); text-shadow: 0 0 20px var(--gold); }
+
+        /* --- MENU & SHOP --- */
         .grid-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
         .card-btn {
             background: #1e293b; padding: 15px; border-radius: 16px; border: none; 
@@ -86,74 +91,59 @@
         .card-btn:active { transform: scale(0.98); }
         .card-btn h3 { margin: 0; font-size: 14px; color: white; display: flex; align-items: center; gap: 5px; }
         .card-btn p { margin: 5px 0 0; font-size: 10px; color: #94a3b8; }
-        .btn-duel { background: linear-gradient(135deg, rgba(244,63,94,0.1), rgba(244,63,94,0.05)); border-color: rgba(244,63,94,0.3); }
-        .btn-farm { background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.05)); border-color: rgba(16,185,129,0.3); }
 
-        /* --- FARM SHOP --- */
         .farm-section { display: none; margin-bottom: 20px; }
         .bird-shop-item {
             background: #0f172a; padding: 10px; border-radius: 12px; margin-bottom: 8px;
-            display: flex; align-items: center; justify-content: space-between;
-            border: 1px solid #334155;
+            display: flex; align-items: center; justify-content: space-between; border: 1px solid #334155;
         }
-        .bird-icon { font-size: 30px; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 10px; }
-        .bird-stats div { font-size: 12px; font-weight: bold; }
-        .bird-stats span { font-size: 10px; color: #94a3b8; }
-        .buy-btn {
-            background: var(--gold); color: black; border: none; padding: 8px 15px; 
-            border-radius: 8px; font-weight: bold; font-size: 12px;
-        }
+        .buy-btn { background: var(--gold); color: black; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; font-size: 12px; }
 
-        /* --- BOTTOM FIXED --- */
+        /* --- FOOTER --- */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; width: 100%; background: #020617;
-            padding: 10px 20px; box-sizing: border-box; display: flex; gap: 10px; border-top: 1px solid #334155; z-index: 100;
+            padding: 10px 20px; box-sizing: border-box; display: flex; gap: 10px;
+            border-top: 1px solid #334155; z-index: 100;
         }
         .cashout-btn {
             flex: 2; background: linear-gradient(90deg, #fbbf24, #d97706); color: black;
             border: none; border-radius: 12px; font-weight: 900; font-size: 16px;
             text-transform: uppercase; letter-spacing: 1px; padding: 15px;
-            animation: pulse-gold 2s infinite; position: relative; overflow: hidden;
-        }
-        .cashout-btn::after {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
-            transform: rotate(45deg); animation: ticker 3s infinite;
+            animation: pulse-gold 2s infinite;
         }
         .ref-btn { flex: 1; background: #1e293b; color: white; border: 1px solid #475569; border-radius: 12px; font-size: 10px; font-weight: bold; }
 
-        /* --- NOTIFICATIONS --- */
-        #scam-toast {
+        /* TOASTS */
+        #toast {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
-            background: rgba(0,0,0,0.8); border: 1px solid var(--gold); border-radius: 30px;
+            background: rgba(0,0,0,0.9); border: 1px solid var(--gold); border-radius: 30px;
             padding: 8px 20px; display: flex; align-items: center; gap: 10px; z-index: 2000;
             transition: 0.5s; backdrop-filter: blur(5px); width: max-content;
         }
-        #scam-toast.show { transform: translateX(-50%) translateY(0); }
-        .scam-avatar { width: 20px; height: 20px; border-radius: 50%; background: #ccc; }
+        #toast.show { transform: translateX(-50%) translateY(0); }
 
     </style>
 </head>
 <body>
 
-    <div id="scam-toast">
-        <div class="scam-avatar" id="scam-img"></div>
+    <div id="toast">
+        <div style="width:20px; height:20px; border-radius:50%; background:#ccc;" id="toast-img"></div>
         <div style="font-size: 12px;">
-            <span id="scam-name" style="font-weight:bold; color:var(--gold)">ElonMusk</span> 
-            вывел <span id="scam-val" style="color:var(--neon-green)">5000 ⭐</span>
+            <span id="toast-name" style="font-weight:bold; color:var(--gold)">User</span> 
+            вывел <span id="toast-val" style="color:var(--neon-green)">0 ⭐</span>
         </div>
     </div>
 
     <div class="top-bar">
-        <div class="online-badge"><div class="online-dot"></div> <span id="online-counter">4,291</span> ONLINE</div>
+        <div class="online-badge"><div class="online-dot"></div> <span id="online-counter">2,412</span> ONLINE</div>
         <div>ID: <span id="user-id">884102</span></div>
     </div>
 
-    <div class="hero-banner" id="hero-banner">
+    <div class="hero-banner">
         <div class="hero-avatar">👑</div>
         <div class="hero-info">
             <div>Герой Битвы</div>
-            <div id="hero-text">Alex_Killer (84 победы)</div>
+            <div id="hero-text">Загрузка...</div>
         </div>
     </div>
 
@@ -162,319 +152,320 @@
         <div class="balance-val"><span id="balance">0</span> ⭐</div>
         
         <div class="oxygen-container">
-            <div class="oxygen-label">
-                <span>КИСЛОРОД</span>
-                <span id="ox-txt">100%</span>
-            </div>
-            <div class="oxygen-bar">
-                <div class="oxygen-fill" id="ox-fill"></div>
-            </div>
+            <div class="oxygen-label"><span>КИСЛОРОД</span><span id="ox-txt">100%</span></div>
+            <div class="oxygen-bar"><div class="oxygen-fill" id="ox-fill"></div></div>
         </div>
-        <button onclick="buyOxygen()" style="margin-top:10px; background:rgba(255,255,255,0.1); border:none; color:var(--neon-blue); font-size:10px; padding:5px 10px; border-radius:20px;">⚡ Купить (50⭐)</button>
+        <button onclick="buyOxygen()" style="margin-top:10px; background:rgba(255,255,255,0.1); border:none; color:var(--neon-blue); font-size:10px; padding:6px 15px; border-radius:20px;">⚡ Купить баллон (50⭐)</button>
     </div>
 
     <div id="scene">
-        <div id="vs-screen">
-            <div class="vs-logo">VS</div>
-            <div style="color:white; margin-top:10px; font-size:12px;">ПОИСК ЖЕРТВЫ...</div>
+        <div id="search-overlay">
+            <div class="radar"><div class="radar-line"></div></div>
+            <div style="color:var(--neon-green); margin-top:15px; font-weight:bold; font-size:14px; letter-spacing:1px;">ПОИСК ПРОТИВНИКА...</div>
+            <div style="color:#64748b; font-size:10px; margin-top:5px;" id="search-status">Сканирование сети...</div>
         </div>
-        
+
+        <div id="eternal-overlay">
+            <div style="color:#cbd5e1; font-size:12px; margin-bottom:10px;">МНОЖИТЕЛЬ ПОЛЕТА</div>
+            <div class="multiplier-text" id="eternal-mult">x1.00</div>
+            <button onclick="cashoutEternal()" style="margin-top:20px; background:var(--neon-green); border:none; padding:15px 40px; border-radius:15px; font-weight:900; font-size:18px;">ЗАБРАТЬ</button>
+        </div>
+
         <div id="bird-me" class="bird bird-me">🐦‍⬛</div>
         <div id="bird-en" class="bird bird-en">🦅</div>
+        <div id="stars-container"></div>
     </div>
 
     <div class="grid-menu" id="main-menu">
-        <button class="card-btn btn-duel" onclick="startDuel()">
+        <button class="card-btn" style="background: linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(0,0,0,0)); border-color: rgba(220, 38, 38, 0.3);" onclick="startDuel()">
             <h3>⚔️ ДУЭЛЬ <span style="font-size:10px; color:#cbd5e1; margin-left:auto">100⭐</span></h3>
-            <p>Победитель забирает банк. Риск 100%.</p>
+            <p>Риск 100%. Победа или смерть.</p>
         </button>
-        <button class="card-btn btn-farm" onclick="toggleFarm()">
+        <button class="card-btn" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(0,0,0,0)); border-color: rgba(16, 185, 129, 0.3);" onclick="toggleFarm()">
             <h3>🐣 ФЕРМА <span style="font-size:10px; color:#cbd5e1; margin-left:auto">PASSIVE</span></h3>
-            <p>Купи птиц и получай доход каждый час.</p>
+            <p>Купи птиц и получай доход.</p>
         </button>
-        <button class="card-btn" style="background: #172554; border-color:#1e40af;" onclick="startEternal()">
-            <h3>🚀 ВЕЧНЫЙ</h3>
-            <p>Краш-тест. Множитель растет вечно.</p>
-        </button>
-        <button class="card-btn" style="background: #3f6212; border-color:#4d7c0f;" onclick="alert('Скоро! Битва Кланов!')">
-            <h3>🛡️ КЛАНЫ</h3>
-            <p>Захват территорий. (Закрыто)</p>
+        <button class="card-btn" style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(0,0,0,0)); border-color: rgba(37, 99, 235, 0.3);" onclick="startEternal()">
+            <h3>🚀 ВЕЧНЫЙ <span style="font-size:10px; color:#cbd5e1; margin-left:auto">250⭐</span></h3>
+            <p>12 часов полета. Успей забрать.</p>
         </button>
     </div>
 
     <div class="farm-section" id="farm-ui">
         <div style="text-align:left; font-size:16px; font-weight:bold; margin-bottom:10px; color:var(--neon-green)">МАГАЗИН ПТИЦ</div>
-        
         <div class="bird-shop-item">
-            <div style="display:flex; gap:10px; align-items:center;">
-                <div class="bird-icon">🦢</div>
-                <div class="bird-stats">
-                    <div>БЕЛАЯ ПТИЦА</div>
-                    <span>Доход: 20 ⭐/час</span>
-                </div>
-            </div>
+            <div style="display:flex; gap:10px; align-items:center;"><div style="font-size:24px">🦢</div><div><b>БЕЛАЯ ПТИЦА</b><br><span style="font-size:10px; color:#94a3b8">20 ⭐/час</span></div></div>
             <button class="buy-btn" onclick="buyBird('white', 250)">250⭐</button>
         </div>
-
         <div class="bird-shop-item">
-            <div style="display:flex; gap:10px; align-items:center;">
-                <div class="bird-icon">🐦</div>
-                <div class="bird-stats">
-                    <div>СИНЯЯ ПТИЦА</div>
-                    <span>Доход: 75 ⭐/час</span>
-                </div>
-            </div>
-            <button class="buy-btn" onclick="buyBird('blue', 1000)">1К⭐</button>
+            <div style="display:flex; gap:10px; align-items:center;"><div style="font-size:24px">🐦</div><div><b>СИНЯЯ ПТИЦА</b><br><span style="font-size:10px; color:#94a3b8">75 ⭐/час</span></div></div>
+            <button class="buy-btn" onclick="buyBird('blue', 1000)">1000⭐</button>
         </div>
-
-        <div class="bird-shop-item" style="border: 1px solid var(--gold); background: rgba(251, 191, 36, 0.1);">
-            <div style="display:flex; gap:10px; align-items:center;">
-                <div class="bird-icon">🦅</div>
-                <div class="bird-stats">
-                    <div style="color:var(--gold)">PRESIDENT BIRD</div>
-                    <span>Доход: 150 ⭐/час</span>
-                </div>
-            </div>
-            <button class="buy-btn" onclick="buyBird('biden', 2000)">2К⭐</button>
+        <div class="bird-shop-item" style="border-color:var(--gold); background:rgba(251,191,36,0.05)">
+            <div style="display:flex; gap:10px; align-items:center;"><div style="font-size:24px">🦅</div><div><b style="color:var(--gold)">PRESIDENT</b><br><span style="font-size:10px; color:#94a3b8">150 ⭐/час</span></div></div>
+            <button class="buy-btn" onclick="buyBird('biden', 2000)">2000⭐</button>
         </div>
         <button onclick="toggleFarm()" style="width:100%; padding:10px; background:#334155; color:white; border:none; border-radius:10px; margin-top:10px;">НАЗАД</button>
     </div>
 
     <div class="bottom-nav">
-        <button class="ref-btn" onclick="inviteFriends()">
-            👥 ДРУЗЬЯ<br>+25% O2
-        </button>
-        <button class="cashout-btn" onclick="tryCashout()">
-            ВЫВЕСТИ <span style="font-size:10px; display:block; opacity:0.7">На кошелек</span>
-        </button>
+        <button class="ref-btn" onclick="inviteFriends()">👥 ДРУЗЬЯ<br>+25% O2</button>
+        <button class="cashout-btn" onclick="tryCashout()">ВЫВЕСТИ <span style="font-size:10px; display:block; opacity:0.7">На кошелек</span></button>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // --- STATE ---
-        let balance = 500; // Start visual balance
+        // --- CONFIG ---
+        let balance = 500;
         let oxygen = 100;
         let farm = { white: 0, blue: 0, biden: 0 };
         let isGaming = false;
+        let activeInterval = null;
 
-        // --- CONFIG ---
-        const COSTS = { duel: 100, eternal: 100, oxygen: 50 };
-        const WIN_CHANCE = 0.15; // 15% win rate (SCAM)
+        const COSTS = { duel: 100, eternal: 250, oxygen: 50 };
+        const OXYGEN_DRAIN_GAME = 20; // -20% per game
+        const OXYGEN_DRAIN_TICK = 1; // -1% per minute
+        const DEATH_DRAIN = 100; // -100 stars per sec if O2 is 0
 
         // --- INIT ---
-        setInterval(updateOnline, 3000);
-        setInterval(updateScamToast, 6000);
-        setInterval(updateHero, 10000);
-        setInterval(oxygenLoop, 60000); // 1 min tick for oxygen
-        setInterval(farmYield, 1000); // Real-time farming visuals
-
         updateUI();
+        setInterval(fakeNotifications, 5000);
+        setInterval(oxygenLogic, 60000); // 1 min tick
+        setInterval(deathLogic, 1000); // Check 0 oxygen
+        setInterval(farmYield, 1000);
 
-        // --- CORE FUNCTIONS ---
-
+        // --- CORE UI ---
         function updateUI() {
             document.getElementById('balance').innerText = Math.floor(balance).toLocaleString();
             document.getElementById('ox-fill').style.width = oxygen + '%';
             document.getElementById('ox-txt').innerText = oxygen + '%';
-            
-            // Panic visuals
             if(oxygen < 20) document.querySelector('.oxygen-bar').style.boxShadow = "0 0 10px red";
             else document.querySelector('.oxygen-bar').style.boxShadow = "none";
         }
 
-        function updateOnline() {
-            // Fake 2000 - 10000
-            const count = Math.floor(Math.random() * (10000 - 2000 + 1)) + 2000;
-            document.getElementById('online-counter').innerText = count.toLocaleString();
+        // --- OXYGEN SYSTEM ---
+        function oxygenLogic() {
+            if(oxygen > 0) oxygen -= OXYGEN_DRAIN_TICK;
+            updateUI();
+        }
+        function deathLogic() {
+            if(oxygen <= 0 && balance > 0) {
+                balance -= DEATH_DRAIN;
+                if(balance < 0) balance = 0;
+                updateUI();
+                if(Math.random() > 0.8) tg.HapticFeedback.notificationOccurred('error');
+            }
+        }
+        function buyOxygen() {
+            if(balance >= COSTS.oxygen) {
+                balance -= COSTS.oxygen;
+                oxygen = 100;
+                tg.showAlert("Кислород восстановлен!");
+                updateUI();
+            } else tg.showAlert("Недостаточно средств!");
         }
 
-        function updateHero() {
-            const names = ["Killer777", "Mamont_Hunter", "Dubai_King", "Star_Lord", "Pavel_Durov"];
-            const wins = Math.floor(Math.random() * 200) + 50;
-            const name = names[Math.floor(Math.random() * names.length)];
-            document.getElementById('hero-text').innerText = `${name} (${wins} побед)`;
-        }
-
-        function updateScamToast() {
-            const users = ["User882", "CryptoWhale", "Ilya_M", "Anna_K", "Vip_Player"];
-            const sums = [1000, 5000, 10000, 50000];
-            const u = users[Math.floor(Math.random() * users.length)];
-            const s = sums[Math.floor(Math.random() * sums.length)];
-            const el = document.getElementById('scam-toast');
-            
-            document.getElementById('scam-name').innerText = u;
-            document.getElementById('scam-val').innerText = `${s} ⭐`;
-            document.getElementById('scam-img').style.background = `hsl(${Math.random()*360}, 70%, 50%)`;
-            
-            el.classList.add('show');
-            setTimeout(() => el.classList.remove('show'), 3000);
-        }
-
-        // --- DUEL LOGIC ---
+        // --- DUEL MODE (CINEMATIC) ---
         function startDuel() {
             if(isGaming) return;
-            if(balance < COSTS.duel) return tg.showAlert("Недостаточно средств!");
-
+            if(balance < COSTS.duel) return tg.showAlert("Нужно 100 Stars!");
+            
+            // PAY & DRAIN
             balance -= COSTS.duel;
+            oxygen = Math.max(0, oxygen - OXYGEN_DRAIN_GAME);
             isGaming = true;
             updateUI();
 
-            // Setup Scene
             const me = document.getElementById('bird-me');
             const en = document.getElementById('bird-en');
-            const vs = document.getElementById('vs-screen');
-            
-            me.style.left = '20px'; en.style.left = '20px';
-            me.classList.remove('flying'); en.classList.remove('flying');
-            en.style.display = 'none';
+            const scene = document.getElementById('scene');
+            const starsCont = document.getElementById('stars-container');
+            const search = document.getElementById('search-overlay');
 
-            // 1. Searching
-            vs.style.display = 'flex';
-            
-            setTimeout(() => {
-                // 2. Start
-                vs.style.display = 'none';
-                me.classList.add('flying'); en.classList.add('flying');
-                en.style.display = 'block';
-                
-                let race = 0;
-                let mePos = 20;
-                let enPos = 20;
-                const isWin = Math.random() < WIN_CHANCE; // 15% chance
+            // RESET SCENE
+            me.style.top = '40%'; me.style.transform = 'rotate(0deg)';
+            en.style.display = 'none'; en.style.top = '60%';
+            starsCont.innerHTML = '';
 
-                const timer = setInterval(() => {
-                    race++;
-                    
-                    // Logic
-                    if(isWin) {
-                        mePos += 1.5; enPos += 1.2;
-                    } else {
-                        mePos += 1.0; enPos += 1.6; // Enemy faster
-                    }
-
-                    me.style.left = mePos + '%';
-                    en.style.left = enPos + '%';
-
-                    // Finish logic
-                    if (mePos > 85 || enPos > 85) {
-                        clearInterval(timer);
-                        
-                        if(isWin) {
-                            balance += COSTS.duel * 1.8;
-                            tg.showAlert("🏆 ПОБЕДА! КУШ ТВОЙ!");
-                            resetDuel();
-                        } else {
-                            // HUMILIATION ANIMATION
-                            // Enemy flies away, you fall
-                            finishHumiliation(me, en);
-                        }
-                    }
-                }, 50);
-
-            }, 2000);
-        }
-
-        function finishHumiliation(me, en) {
-            let flyAway = setInterval(() => {
-                let currentLeft = parseFloat(en.style.left);
-                if(currentLeft < 120) {
-                    en.style.left = (currentLeft + 5) + '%';
-                } else {
-                    clearInterval(flyAway);
-                    tg.showAlert("☠️ ПРОИГРЫШ! Твоя птица слишком слабая.");
-                    resetDuel();
+            // 1. SEARCH ANIMATION (5 SEC)
+            search.style.display = 'flex';
+            let sec = 5;
+            const sInt = setInterval(() => {
+                sec--;
+                document.getElementById('search-status').innerText = `Поиск... ${sec} сек`;
+                if(sec <= 0) {
+                    clearInterval(sInt);
+                    search.style.display = 'none';
+                    startDuelGameplay(me, en, starsCont);
                 }
-            }, 30);
-            
-            me.classList.remove('flying');
-            me.style.transform = "rotate(90deg)"; // Fall
-            me.style.top = "150%"; // Fall down
-        }
-
-        function resetDuel() {
-            isGaming = false;
-            updateUI();
-            setTimeout(() => {
-                document.getElementById('bird-me').style.transform = "rotate(0deg)";
-                document.getElementById('bird-me').style.top = "40%";
-                document.getElementById('bird-me').style.left = "20px";
-                document.getElementById('bird-en').style.display = "none";
             }, 1000);
         }
 
-        // --- FARM LOGIC ---
+        function startDuelGameplay(me, en, starsCont) {
+            en.style.display = 'block';
+            let frame = 0;
+            let collected = 0;
+            const isWin = false; // SCAM: Player always loses eventually in this script logic for now, or make it random 15%
+
+            activeInterval = setInterval(() => {
+                frame++;
+                
+                // MOVEMENT (Sine Wave)
+                me.style.top = (40 + Math.sin(frame/10) * 10) + '%';
+                en.style.top = (60 + Math.cos(frame/12) * 10) + '%';
+
+                // SPAWN STARS
+                if(frame % 20 === 0) {
+                    const s = document.createElement('div');
+                    s.className = 'star-item';
+                    s.innerText = '⭐';
+                    s.style.left = '100%';
+                    s.style.top = (20 + Math.random() * 60) + '%';
+                    starsCont.appendChild(s);
+                    
+                    // Move Star
+                    let starLeft = 100;
+                    const moveStar = setInterval(() => {
+                        starLeft -= 2;
+                        s.style.left = starLeft + '%';
+                        if(starLeft < 10) { 
+                            clearInterval(moveStar); 
+                            if(s.parentNode) s.remove(); 
+                            // VISUAL COLLECT
+                            collected += Math.floor(Math.random()*5);
+                            tg.HapticFeedback.impactOccurred('light');
+                        }
+                    }, 20);
+                }
+
+                // EXPLOSION (SCAM END)
+                if(frame > 150) { // ~5-6 seconds of flight
+                    clearInterval(activeInterval);
+                    finishDuel(me, en);
+                }
+
+            }, 50);
+        }
+
+        function finishDuel(me, en) {
+            // EXPLODE PLAYER
+            const boom = document.createElement('div');
+            boom.className = 'explosion';
+            boom.innerText = '💥';
+            boom.style.left = me.style.left;
+            boom.style.top = me.style.top;
+            document.getElementById('scene').appendChild(boom);
+            
+            me.style.display = 'none';
+            document.getElementById('scene').style.animation = 'shake 0.5s';
+            tg.HapticFeedback.notificationOccurred('error');
+
+            // ENEMY FLIES AWAY
+            let enLeft = 20;
+            const flyAway = setInterval(() => {
+                enLeft += 5;
+                en.style.left = enLeft + '%';
+                if(enLeft > 100) {
+                    clearInterval(flyAway);
+                    tg.showAlert("☠️ ВАША ПТИЦА СБИТА! ПРОТИВНИК ЗАБРАЛ БАНК.");
+                    setTimeout(resetGame, 1000);
+                }
+            }, 20);
+
+            setTimeout(() => boom.remove(), 1000);
+        }
+
+        // --- ETERNAL MODE ---
+        function startEternal() {
+            if(isGaming) return;
+            if(balance < COSTS.eternal) return tg.showAlert("Нужно 250 Stars!");
+
+            balance -= COSTS.eternal;
+            oxygen = Math.max(0, oxygen - OXYGEN_DRAIN_GAME);
+            isGaming = true;
+            updateUI();
+
+            document.getElementById('eternal-overlay').style.display = 'flex';
+            document.getElementById('main-menu').style.display = 'none';
+            
+            let mult = 1.00;
+            activeInterval = setInterval(() => {
+                mult += 0.01;
+                document.getElementById('eternal-mult').innerText = 'x' + mult.toFixed(2);
+                
+                // CRASH CHANCE
+                if(Math.random() < 0.02 * mult) { // Higher mult = higher risk
+                    clearInterval(activeInterval);
+                    tg.showAlert("💥 ВЗРЫВ! Вы жадничали и потеряли всё.");
+                    resetGame();
+                }
+            }, 200); // Fast ticks for demo
+        }
+
+        function cashoutEternal() {
+            clearInterval(activeInterval);
+            const mult = parseFloat(document.getElementById('eternal-mult').innerText.replace('x',''));
+            const win = Math.floor(COSTS.eternal * mult);
+            balance += win;
+            tg.showAlert(`💰 ВЫВЕДЕНО: ${win} Stars`);
+            resetGame();
+        }
+
+        // --- UTILS ---
+        function resetGame() {
+            isGaming = false;
+            document.getElementById('bird-me').style.display = 'block';
+            document.getElementById('bird-en').style.display = 'none';
+            document.getElementById('search-overlay').style.display = 'none';
+            document.getElementById('eternal-overlay').style.display = 'none';
+            document.getElementById('main-menu').style.display = 'grid';
+            updateUI();
+        }
+
         function toggleFarm() {
             const menu = document.getElementById('main-menu');
-            const farmUI = document.getElementById('farm-ui');
-            if(menu.style.display === 'none') {
-                menu.style.display = 'grid';
-                farmUI.style.display = 'none';
+            const farm = document.getElementById('farm-ui');
+            if(farm.style.display === 'block') {
+                farm.style.display = 'none'; menu.style.display = 'grid';
             } else {
-                menu.style.display = 'none';
-                farmUI.style.display = 'block';
+                farm.style.display = 'block'; menu.style.display = 'none';
             }
         }
 
         function buyBird(type, cost) {
             if(balance >= cost) {
-                balance -= cost;
-                farm[type]++;
-                tg.showAlert(`✅ Куплена птица! Теперь их: ${farm[type]}`);
-                updateUI();
-            } else {
-                tg.showAlert("Не хватает Stars!");
-            }
+                balance -= cost; farm[type]++; updateUI();
+                tg.showAlert("Птица куплена!");
+            } else tg.showAlert("Не хватает денег!");
         }
 
         function farmYield() {
-            // Yield per second = (YieldPerHour / 3600)
-            const profit = (farm.white * 20 + farm.blue * 75 + farm.biden * 150) / 3600;
-            if(profit > 0) {
-                balance += profit;
-                updateUI(); // Update UI in real time to show numbers ticking up
-            }
+            const p = (farm.white*20 + farm.blue*75 + farm.biden*150)/3600;
+            if(p>0) { balance+=p; updateUI(); }
         }
 
-        // --- OXYGEN & REF ---
-        function oxygenLoop() {
-            if(oxygen > 0) oxygen--;
-            else {
-                if(balance > 0) balance -= 10; // Burn logic
-            }
-            updateUI();
+        // FAKE TOASTS
+        function fakeNotifications() {
+            const names = ["Alex", "Winner_99", "CryptoGod", "Elon", "Durov"];
+            const n = names[Math.floor(Math.random()*names.length)];
+            const v = Math.floor(Math.random()*5000)+100;
+            const t = document.getElementById('toast');
+            document.getElementById('toast-name').innerText = n;
+            document.getElementById('toast-val').innerText = v + " ⭐";
+            document.getElementById('toast-img').style.background = `hsl(${Math.random()*360},70%,50%)`;
+            t.classList.add('show');
+            setTimeout(()=>t.classList.remove('show'), 3000);
+            
+            // Hero update
+            const h = document.getElementById('hero-text');
+            h.innerText = `${n} (${Math.floor(Math.random()*100)} побед)`;
+            document.getElementById('online-counter').innerText = (Math.floor(Math.random()*8000)+2000).toLocaleString();
         }
 
-        function buyOxygen() {
-            if(balance >= COSTS.oxygen) {
-                balance -= COSTS.oxygen;
-                oxygen = 100;
-                tg.showAlert("Кислород полон!");
-                updateUI();
-            }
-        }
-
-        function inviteFriends() {
-            // Fake referral link logic
-            oxygen = Math.min(100, oxygen + 25);
-            tg.showPopup({
-                title: 'Реферальная ссылка',
-                message: 'Отправь другу: t.me/starbird_bot?start=' + Math.floor(Math.random()*100000),
-                buttons: [{type: 'ok'}]
-            });
-            updateUI();
-        }
-
-        function tryCashout() {
-            if(oxygen < 90) tg.showAlert("⚠️ Нужно 90% кислорода для вывода!");
-            else tg.showAlert("❌ Ошибка шлюза. Попробуйте через 24 часа или пригласите 5 друзей.");
-        }
-
-        // ETERNAL STUB
-        function startEternal() {
-            tg.showAlert("Запуск Вечного Двигателя... (Демо режим активен)");
-        }
+        function inviteFriends() { tg.showAlert("Ссылка скопирована! (Invite logic)"); }
+        function tryCashout() { tg.showAlert("❌ Ошибка соединения с блокчейном. Попробуйте позже."); }
 
     </script>
 </body>
