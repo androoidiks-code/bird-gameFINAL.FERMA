@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>УДАЧА ТЕЛЕГРАММ: СЕЗОН 2</title>
+    <title>ЛИФТ: СТРАТЕГИЯ УДАЧИ</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
@@ -19,7 +19,6 @@
             padding-bottom: 140px; overflow-x: hidden;
         }
 
-        /* --- UI ELEMENTS --- */
         .glass {
             background: rgba(30, 41, 59, 0.7);
             backdrop-filter: blur(12px);
@@ -32,268 +31,204 @@
             margin-bottom: 20px;
         }
 
-        .balance-box { text-align: right; }
-        .balance-box span { font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
         .balance-val { font-size: 24px; font-weight: 900; color: var(--gold); }
 
         /* --- BANK WINDOW --- */
         .bank-window {
             padding: 20px; text-align: center; margin-bottom: 20px;
             background: radial-gradient(circle at top right, rgba(245, 158, 11, 0.15), transparent);
-            position: relative; overflow: hidden;
         }
 
-        .bank-title { font-size: 12px; color: var(--text-muted); letter-spacing: 2px; margin-bottom: 10px; }
-        .bank-amount { font-size: 42px; font-weight: 900; margin-bottom: 15px; text-shadow: 0 0 20px var(--gold-glow); }
+        .bank-amount { font-size: 32px; font-weight: 900; margin-bottom: 15px; }
 
         .progress-container { width: 100%; height: 12px; background: #1e293b; border-radius: 10px; overflow: hidden; }
-        .progress-bar { 
-            height: 100%; width: 45%; 
-            background: linear-gradient(90deg, var(--gold), #fbbf24); 
-            box-shadow: 0 0 15px var(--gold); transition: 1s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+        .progress-bar { height: 100%; width: 0%; background: var(--gold); transition: 1s ease-in-out; }
 
         /* --- TICKET SELECTION --- */
         .ticket-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; }
-        .ticket-card {
-            padding: 15px; text-align: center; cursor: pointer; transition: 0.2s;
-            border: 2px solid transparent;
+        .ticket-card { padding: 15px; text-align: center; cursor: pointer; border: 2px solid transparent; }
+        .ticket-card.active { border-color: var(--gold); background: rgba(245, 158, 11, 0.1); }
+        .ticket-card.vip.active { border-color: var(--vip); background: rgba(139, 92, 246, 0.1); }
+
+        /* --- VISUAL LIFT (ГРАФИЧЕСКАЯ ТАБЛИЦА) --- */
+        .visual-queue {
+            display: flex; flex-direction: column-reverse; gap: 8px;
+            padding: 15px; margin-bottom: 20px; min-height: 200px;
+            background: linear-gradient(to top, rgba(15, 23, 42, 0.8), transparent);
+            border-radius: 15px; position: relative;
         }
-        .ticket-card.active { border-color: var(--gold); background: rgba(245, 158, 11, 0.05); }
-        .ticket-card.vip.active { border-color: var(--vip); background: rgba(139, 92, 246, 0.05); }
-        
-        .ticket-card h3 { margin: 0 0 5px; font-size: 14px; }
-        .ticket-price { font-size: 18px; font-weight: bold; color: var(--gold); }
-        .ticket-card.vip .ticket-price { color: var(--vip); }
-        .ticket-target { font-size: 10px; color: var(--text-muted); margin-top: 5px; }
-
-        /* --- QUEUE TABLE --- */
-        .section-title { font-size: 14px; font-weight: bold; margin-bottom: 12px; display: flex; justify-content: space-between; }
-        .online-count { color: var(--green); font-size: 11px; }
-
-        .queue-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        .queue-table th { text-align: left; color: var(--text-muted); padding: 10px; font-weight: 400; font-size: 11px; }
-        .queue-table td { padding: 12px 10px; border-top: 1px solid rgba(255,255,255,0.05); }
-        .my-row { background: rgba(245, 158, 11, 0.1); color: var(--gold); font-weight: bold; }
-
-        /* --- ACCELERATOR --- */
-        .boost-box {
-            margin-top: 20px; padding: 15px; display: flex; align-items: center; justify-content: space-between;
-            background: linear-gradient(90deg, rgba(16, 185, 129, 0.1), transparent);
-            border-left: 4px solid var(--green);
+        .lift-floor {
+            height: 40px; display: flex; align-items: center; padding: 0 15px;
+            background: rgba(255,255,255,0.03); border-radius: 8px;
+            border-left: 3px solid #334155; transition: 0.5s;
         }
-        .boost-text div:first-child { font-weight: bold; font-size: 14px; }
-        .boost-text div:last-child { font-size: 11px; color: var(--text-muted); }
-        .boost-btn { background: var(--green); color: white; border: none; padding: 10px 15px; border-radius: 10px; font-weight: bold; }
+        .lift-floor.active { border-left-color: var(--gold); background: rgba(245, 158, 11, 0.1); }
+        .floor-num { width: 30px; font-size: 10px; color: var(--text-muted); }
+        .user-tag { font-size: 13px; font-weight: 600; }
 
-        /* --- BOTTOM NAV --- */
-        .footer {
-            position: fixed; bottom: 0; left: 0; width: 100%; padding: 20px; box-sizing: border-box;
-            background: linear-gradient(to top, var(--bg) 80%, transparent); z-index: 100;
-        }
+        /* --- BUTTONS --- */
+        .footer { position: fixed; bottom: 0; left: 0; width: 100%; padding: 20px; box-sizing: border-box; background: var(--bg); }
         .main-btn {
             width: 100%; padding: 18px; border-radius: 16px; border: none; font-size: 16px; font-weight: 900;
-            text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
-            background: linear-gradient(90deg, #f59e0b, #d97706); color: black;
-            box-shadow: 0 10px 30px var(--gold-glow); transition: 0.3s;
+            text-transform: uppercase; cursor: pointer; transition: 0.3s;
         }
-        .main-btn:disabled { background: #334155; color: #94a3b8; box-shadow: none; opacity: 0.5; }
+        .boost-btn:disabled { opacity: 0.3; filter: grayscale(1); }
 
-        /* --- SUCCESS MODAL --- */
         #win-modal {
             position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000;
             display: none; flex-direction: column; align-items: center; justify-content: center;
-            text-align: center; padding: 20px;
         }
-        .win-card {
-            padding: 40px 20px; width: 100%; max-width: 320px;
-            background: linear-gradient(135deg, #1e293b, #0f172a);
-            border: 2px solid var(--gold); box-shadow: 0 0 50px var(--gold-glow);
-        }
-        .win-icon { font-size: 80px; margin-bottom: 20px; }
-
     </style>
 </head>
 <body>
 
     <div id="win-modal">
-        <div class="glass win-card">
-            <div class="win-icon">💰</div>
-            <h1 style="color:var(--gold); margin:0">ПОБЕДА!</h1>
-            <p style="color:var(--text-muted)">Ваша очередь подошла!</p>
-            <div style="font-size:32px; font-weight:900; margin:20px 0" id="win-sum">5000 ⭐</div>
-            <p style="font-size:12px; opacity:0.7">Сделай скриншот и поделись удачей!</p>
-            <button class="main-btn" onclick="closeWin()">ЗАБРАТЬ И ВЕРНУТЬСЯ</button>
+        <div class="glass" style="padding:40px; text-align:center; border:2px solid var(--gold)">
+            <h1 style="color:var(--gold)">ПОБЕДА!</h1>
+            <div style="font-size:42px; margin:20px 0" id="win-sum">5000 ⭐</div>
+            <button class="main-btn" style="background:var(--gold)" onclick="location.reload()">ЗАБРАТЬ ⭐</button>
         </div>
     </div>
 
     <div class="header">
-        <div style="font-weight:900; letter-spacing:1px;">УДАЧА <span style="color:var(--gold)">ТГ</span></div>
-        <div class="balance-box">
-            <span>Мой Баланс</span>
+        <div style="font-weight:900; font-size:22px;">ЛИФТ <span style="color:var(--gold)">S2</span></div>
+        <div style="text-align:right">
+            <span style="font-size:10px; color:var(--text-muted)">БАЛАНС</span>
             <div class="balance-val" id="user-balance">0 ⭐</div>
         </div>
     </div>
 
     <div class="glass bank-window">
-        <div class="bank-title">НАПОЛНЕНИЕ БАНКА (ВЫПЛАТА №42)</div>
-        <div class="bank-amount" id="pool-display">2,400 / 5,000 ⭐</div>
+        <div id="pool-title" style="font-size:12px; color:var(--text-muted); margin-bottom:10px">НАПОЛНЕНИЕ ЛИФТА</div>
+        <div class="bank-amount" id="pool-display">0 / 5,000 ⭐</div>
         <div class="progress-container">
-            <div class="progress-bar" id="pool-bar" style="width: 48%;"></div>
-        </div>
-        <div style="font-size: 10px; color: var(--text-muted); margin-top: 10px;">
-            Как только полоска заполнится, первый игрок в очереди получит выплату!
+            <div class="progress-bar" id="pool-bar"></div>
         </div>
     </div>
 
     <div class="ticket-grid">
-        <div class="glass ticket-card active" id="mode-std" onclick="selectMode('standard')">
+        <div class="glass ticket-card active" id="mode-standard" onclick="selectMode('standard')">
             <h3>СТАНДАРТ</h3>
-            <div class="ticket-price">500 ⭐</div>
-            <div class="ticket-target">Выход: 5000 ⭐</div>
+            <div style="color:var(--gold); font-weight:bold">500 ⭐</div>
         </div>
-        <div class="glass ticket-card vip" id="mode-vip" onclick="selectMode('vip')">
+        <div class="glass ticket-card" id="mode-vip" onclick="selectMode('vip')">
             <h3>VIP ЛИФТ</h3>
-            <div class="ticket-price" style="color:var(--vip)">2500 ⭐</div>
-            <div class="ticket-target">Выход: 25000 ⭐</div>
+            <div style="color:var(--vip); font-weight:bold">2500 ⭐</div>
         </div>
     </div>
 
-    <div class="section-title">
-        ДВИЖЕНИЕ ОЧЕРЕДИ
-        <span class="online-count">● <span id="online">4,281</span> В ИГРЕ</span>
-    </div>
-    <div class="glass" style="overflow:hidden">
-        <table class="queue-table">
-            <thead>
-                <tr>
-                    <th>МЕСТО</th>
-                    <th>ID ИГРОКА</th>
-                    <th>СТАТУС</th>
-                </tr>
-            </thead>
-            <tbody id="queue-body">
-                <tr><td>1</td><td>4482****</td><td style="color:var(--gold)">ОЖИДАНИЕ</td></tr>
-                <tr class="my-row"><td>14</td><td>ТЫ (884***)</td><td>В ОЧЕРЕДИ</td></tr>
-                <tr><td>2</td><td>5512****</td><td>В ОЧЕРЕДИ</td></tr>
-            </tbody>
-        </table>
-    </div>
+    <div style="font-size:12px; color:var(--text-muted); margin-bottom:10px">ЛИФТ В ДВИЖЕНИИ (ОЧЕРЕДЬ):</div>
+    <div class="visual-queue" id="visual-queue"></div>
 
-    <div class="glass boost-box">
-        <div class="boost-text">
-            <div>🚀 Ускоритель очереди</div>
-            <div>Прыгни на 3 позиции вперед</div>
+    <div class="glass" style="padding:15px; display:flex; justify-content:space-between; align-items:center">
+        <div>
+            <div style="font-weight:bold; font-size:14px">🚀 Ускоритель</div>
+            <div style="font-size:11px; color:var(--text-muted)">Прыжок на 3 этажа вверх</div>
         </div>
-        <button class="boost-btn" onclick="buyBoost()">250 ⭐</button>
-    </div>
-
-    <div style="margin-top:20px; text-align:center;">
-        <a href="#" onclick="copyRef()" style="color:var(--text-muted); font-size:12px; text-decoration:none;">🔗 Пригласить друга (Сдвиг на 1 позицию)</a>
+        <button class="main-btn" id="boost-btn" style="width:auto; padding:10px 20px; background:var(--green); font-size:12px" onclick="buyBoost()">250 ⭐</button>
     </div>
 
     <div class="footer">
-        <button class="main-btn" id="action-btn" onclick="handleAction()">ВСТАТЬ В ОЧЕРЕДЬ (500 ⭐)</button>
+        <button class="main-btn" id="action-btn" style="background:var(--gold)" onclick="handleAction()">ВСТАТЬ В ОЧЕРЕДЬ</button>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.enableClosingConfirmation();
-
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('user_id') || "336447936";
+        const SERVER_IP = "85.198.96.191"; // Твой внешний IP
+        
         let currentMode = 'standard';
-        let userState = {
-            inQueue: false,
-            canWithdraw: false,
-            balance: 0,
-            pos: 0
-        };
+        let userData = { balance: 0, pos: null, pool: 0 };
 
-        const CONFIG = {
-            standard: { price: 500, target: 5000, color: '#f59e0b' },
-            vip: { price: 2500, target: 25000, color: '#8b5cf6' }
-        };
+        async function syncData() {
+            try {
+                const response = await fetch(`http://${SERVER_IP}:8080/get_user?user_id=${userId}`);
+                const data = await response.json();
+                
+                userData.balance = data.balance;
+                userData.pool = currentMode === 'standard' ? data.pool_std : data.pool_vip;
+                userData.pos = currentMode === 'standard' ? data.pos_std : data.pos_vip;
 
-        // --- ИНИЦИАЛИЗАЦИЯ И СИНХРОНИЗАЦИЯ ---
-        function sync() {
-            // Здесь будет запрос к твоему API (get_user_data)
-            // Имитация обновления данных:
-            document.getElementById('online').innerText = (4000 + Math.floor(Math.random()*500)).toLocaleString();
-            updateUI();
+                updateUI();
+            } catch (e) { console.error("Ошибка синхронизации"); }
         }
-        setInterval(sync, 5000);
 
         function updateUI() {
-            const cfg = CONFIG[currentMode];
-            const pool = Math.floor(cfg.target * 0.45); // Имитация заполнения пула
+            const config = { standard: 5000, vip: 25000 };
+            const target = config[currentMode];
+            
+            document.getElementById('user-balance').innerText = userData.balance + " ⭐";
+            document.getElementById('pool-display').innerText = `${userData.pool} / ${target} ⭐`;
+            
+            const percent = (userData.pool / target) * 100;
+            document.getElementById('pool-bar').style.width = percent + "%";
 
-            document.getElementById('pool-display').innerText = `${pool.toLocaleString()} / ${cfg.target.toLocaleString()} ⭐`;
-            document.getElementById('pool-bar').style.width = '45%';
-            document.getElementById('pool-bar').style.background = cfg.color;
+            document.getElementById('boost-btn').disabled = (userData.balance < 250 || !userData.pos);
 
             const btn = document.getElementById('action-btn');
-            if (userState.canWithdraw) {
-                btn.innerText = `ВЫВЕСТИ ${cfg.target} ⭐`;
-                btn.style.background = 'linear-gradient(90deg, #10b981, #059669)';
-            } else if (userState.inQueue) {
-                btn.innerText = `ТЫ В ОЧЕРЕДИ (МЕСТО: ${userState.pos})`;
+            if (userData.pos === 1 && userData.pool >= target) {
+                btn.innerText = "ВЫВЕСТИ ВЫИГРЫШ!";
+                btn.style.background = "var(--green)";
+            } else if (userData.pos) {
+                btn.innerText = `ВАШ ЭТАЖ: ${userData.pos}`;
                 btn.disabled = true;
+                btn.style.background = "#1e293b";
             } else {
-                btn.innerText = `ВСТАТЬ В ОЧЕРЕДЬ (${cfg.price} ⭐)`;
+                const price = currentMode === 'standard' ? 500 : 2500;
+                btn.innerText = `ВСТАТЬ В ОЧЕРЕДЬ (${price} ⭐)`;
                 btn.disabled = false;
-                btn.style.background = `linear-gradient(90deg, ${cfg.color}, #000)`; // Упрощенно
-                btn.style.color = currentMode === 'vip' ? 'white' : 'black';
+                btn.style.background = "var(--gold)";
+            }
+
+            renderQueue();
+        }
+
+        function renderQueue() {
+            const container = document.getElementById('visual-queue');
+            container.innerHTML = '';
+            for(let i=5; i>=1; i--) {
+                const floor = document.createElement('div');
+                floor.className = 'lift-floor' + (userData.pos === i ? ' active' : '');
+                floor.innerHTML = `
+                    <div class="floor-num">${i}</div>
+                    <div class="user-tag">${userData.pos === i ? 'ЭТО ВЫ' : 'Игрок ID...'}</div>
+                `;
+                container.appendChild(floor);
             }
         }
 
         function selectMode(mode) {
             currentMode = mode;
-            document.getElementById('mode-std').classList.toggle('active', mode === 'standard');
+            document.getElementById('mode-standard').classList.toggle('active', mode === 'standard');
             document.getElementById('mode-vip').classList.toggle('active', mode === 'vip');
-            updateUI();
+            syncData();
         }
 
-        // --- ДЕЙСТВИЯ ---
         function handleAction() {
-            if (userState.canWithdraw) {
-                tg.showConfirm("Вы уверены, что хотите подать заявку на вывод?", (ok) => {
-                    if(ok) {
-                        tg.showAlert("✅ Заявка отправлена админу! После проверки вы получите выплату и сможете зайти в очередь снова.");
-                        // В реальности отправляем запрос на /request_withdraw
-                    }
-                });
+            const price = currentMode === 'standard' ? 500 : 2500;
+            
+            if (userData.pos === 1 && userData.pool >= (currentMode === 'standard' ? 5000 : 25000)) {
+                fetch(`http://${SERVER_IP}:8080/request_withdraw?user_id=${userId}&mode=${currentMode}`);
+                tg.showAlert("✅ Заявка на вывод отправлена админу!");
+            } else if (userData.balance < price) {
+                tg.showAlert("Недостаточно звезд на балансе. Пожалуйста, пополните счет в боте.");
             } else {
-                tg.showAlert(`Оплата ${CONFIG[currentMode].price} ⭐ через Telegram Stars...`);
-                // Вызов инвойса
+                tg.showConfirm(`Списать ${price} ⭐ с баланса и войти в Лифт?`, (ok) => {
+                    if(ok) tg.showAlert("Вы успешно вошли в очередь!");
+                });
             }
         }
 
         function buyBoost() {
-            tg.showConfirm("Ускориться на 3 позиции за 250 ⭐?", (ok) => {
-                if(ok) tg.showAlert("🚀 Ускорение активировано!");
+            tg.showConfirm("Ускориться на 3 этажа за 250 ⭐?", (ok) => {
+                if(ok) tg.showAlert("Ракета запущена! Ожидайте сдвига.");
             });
         }
 
-        function copyRef() {
-            const link = "t.me/starbird_bot?start=" + tg.initDataUnsafe.user.id;
-            tg.showAlert("Ссылка скопирована! Отправь её другу, и когда он купит билет, ты сдвинешься в очереди вперед.");
-        }
-
-        function showWin(amount) {
-            document.getElementById('win-sum').innerText = amount + " ⭐";
-            document.getElementById('win-modal').style.display = 'flex';
-        }
-
-        function closeWin() {
-            document.getElementById('win-modal').style.display = 'none';
-        }
-
-        // Первичная загрузка
-        sync();
-        
-        // Демонстрация выигрышного окна (для тебя)
-        // setTimeout(() => showWin(5000), 3000);
-
+        setInterval(syncData, 5000);
+        syncData();
+        tg.expand();
     </script>
 </body>
 </html>
