@@ -3,470 +3,631 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>STAR BIRD: GALAXY WAR</title>
+    <title>STAR BIRD: SEASON 2</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { 
-            --gold: #fbbf24; --gold-glow: #d97706;
-            --neon-blue: #0ea5e9; --neon-red: #f43f5e; --neon-green: #10b981;
-            --bg-dark: #020617;
-        }
+        :root { --yellow: #fcd34d; --blue: #3b82f6; --sky: #0ea5e9; --red: #f43f5e; --dark: #020617; --card: #1e293b; --bronze: #cd7f32; --silver: #c0c0c0; --gold: #ffd700; --diamond: #b9f2ff; --green: #10b981; }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--dark); color: white; text-align: center; margin: 0; padding: 10px; padding-bottom: 100px; overflow-x: hidden; touch-action: manipulation; user-select: none; }
         
-        body { 
-            font-family: 'Segoe UI', Roboto, sans-serif; 
-            background: #020617; color: white; margin: 0; padding: 10px; padding-bottom: 100px;
-            overflow-x: hidden; user-select: none; -webkit-tap-highlight-color: transparent;
-        }
+        /* СКАМ УВЕДОМЛЕНИЯ */
+        #fake-alert { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); width: 90%; background: linear-gradient(90deg, #f59e0b, #f43f5e); padding: 12px; border-radius: 15px; z-index: 3000; box-shadow: 0 5px 20px rgba(244, 63, 94, 0.6); transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); font-weight: bold; border: 2px solid white; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 13px; text-shadow: 0 1px 2px black; }
+        #fake-alert.show { top: 15px; }
 
-        /* --- ANIMATIONS & FX --- */
-        @keyframes pulse-gold { 0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(251, 191, 36, 0); } 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); } }
-        @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
-        @keyframes radar { 0% { transform: scale(0); opacity: 0.5; } 100% { transform: scale(2); opacity: 0; } }
-
-        /* --- UI COMPONENTS --- */
-        .top-bar { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #94a3b8; margin-bottom: 10px; }
-        .online-badge { color: var(--neon-green); font-weight: bold; display: flex; align-items: center; gap: 5px; }
-        .online-dot { width: 8px; height: 8px; background: var(--neon-green); border-radius: 50%; box-shadow: 0 0 10px var(--neon-green); }
-
-        .hero-banner {
-            background: linear-gradient(90deg, #4c1d95, #7c3aed);
-            padding: 10px; border-radius: 12px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;
-            border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
-        }
-        .hero-avatar { width: 40px; height: 40px; background: #fbbf24; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; border: 2px solid white; }
-        .hero-info div:first-child { font-size: 10px; color: #e9d5ff; text-transform: uppercase; letter-spacing: 1px; }
-        .hero-info div:last-child { font-weight: bold; font-size: 14px; color: white; }
-
-        .balance-card {
-            background: linear-gradient(180deg, #1e293b, #0f172a);
-            border-radius: 20px; padding: 15px; text-align: center;
-            border: 1px solid #334155; position: relative; margin-bottom: 15px;
-        }
-        .balance-val { font-size: 36px; font-weight: 900; background: linear-gradient(to right, #fbbf24, #f59e0b); -webkit-background-clip: text; color: transparent; text-shadow: 0 5px 20px rgba(251, 191, 36, 0.2); }
+        .header-panel { background: linear-gradient(145deg, #1e293b, #0f172a); border-radius: 20px; padding: 15px; margin-bottom: 8px; border: 1px solid #334155; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .stat-box { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.05); }
+        .val { font-size: 22px; font-weight: 800; color: var(--yellow); text-shadow: 0 0 10px rgba(252, 211, 77, 0.3); }
+        .label { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
         
-        .oxygen-container { margin-top: 10px; position: relative; }
-        .oxygen-bar { height: 10px; background: #334155; border-radius: 5px; overflow: hidden; border: 1px solid #475569; }
-        .oxygen-fill { height: 100%; width: 100%; background: linear-gradient(90deg, #ef4444, #eab308, #22c55e); transition: width 0.5s; }
-        .oxygen-label { display: flex; justify-content: space-between; font-size: 10px; color: #cbd5e1; margin-bottom: 3px; font-weight: bold; }
-
-        /* --- GAME SCENE --- */
-        #scene {
-            height: 240px; background: url('https://w.wallhaven.cc/full/7p/wallhaven-7p39gy.jpg'); 
-            background-size: cover; background-position: center; border-radius: 16px; position: relative; 
-            border: 2px solid #475569; overflow: hidden; margin-bottom: 15px;
-            box-shadow: inset 0 0 60px black;
-        }
-        .bird { position: absolute; font-size: 45px; z-index: 10; filter: drop-shadow(0 0 10px black); transition: transform 0.1s linear; }
-        .bird-me { left: 20px; top: 30%; }
-        .bird-en { left: 20px; top: 60%; filter: grayscale(1) drop-shadow(0 0 5px red); display: none; }
+        .season-title { font-size: 16px; color: var(--sky); font-weight: 900; letter-spacing: 2px; margin-bottom: 5px; text-transform: uppercase; text-shadow: 0 0 15px var(--blue); animation: pulse-title 2s infinite; }
+        @keyframes pulse-title { 0% { opacity: 0.8; } 50% { opacity: 1; text-shadow: 0 0 25px var(--sky); } 100% { opacity: 0.8; } }
         
-        .star-item { position: absolute; font-size: 20px; color: #fbbf24; z-index: 5; text-shadow: 0 0 10px #fbbf24; animation: star-spin 1s infinite linear; }
-        @keyframes star-spin { 0% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.2); } 100% { transform: rotate(360deg) scale(1); } }
+        .total-paid { font-size: 10px; color: var(--green); background: rgba(16, 185, 129, 0.1); padding: 4px 10px; border-radius: 10px; display: inline-block; margin-bottom: 10px; border: 1px solid var(--green); }
+        .online-count { font-size: 10px; color: var(--green); margin-top: 5px; font-weight: bold; }
 
-        .explosion { position: absolute; font-size: 80px; z-index: 20; animation: shake 0.5s; }
+        .league-badge { display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 8px; font-size: 12px; font-weight: bold; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 12px; cursor: pointer; border: 1px solid transparent; transition: 0.3s; }
+        .league-badge:active { transform: scale(0.95); background: rgba(255,255,255,0.1); }
+        .league-icon { font-size: 18px; }
+        .league-bronze { color: var(--bronze); }
+        .league-silver { color: var(--silver); }
+        .league-gold { color: var(--gold); }
+        .league-diamond { color: var(--diamond); text-shadow: 0 0 10px var(--diamond); }
 
-        /* --- OVERLAYS --- */
-        #search-overlay {
-            position: absolute; inset: 0; background: rgba(0,0,0,0.9); z-index: 50; 
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .radar { width: 80px; height: 80px; border: 2px solid var(--neon-green); border-radius: 50%; position: relative; }
-        .radar::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: var(--neon-green); animation: radar 1.5s infinite; }
-        .radar-line { position: absolute; top: 50%; left: 50%; width: 50%; height: 2px; background: var(--neon-green); transform-origin: 0 0; animation: spin-radar 2s infinite linear; }
-        @keyframes spin-radar { 100% { transform: rotate(360deg); } }
+        .progress-container { background: #1e293b; border-radius: 10px; height: 12px; margin: 10px 0; overflow: hidden; border: 1px solid #334155; position: relative; }
+        #progress-bar { background: var(--blue); width: 0%; height: 100%; transition: width 0.5s ease; box-shadow: 0 0 10px var(--blue); }
+        .progress-text { font-size: 9px; color: white; position: absolute; width: 100%; top: 0; left: 0; line-height: 12px; font-weight: bold; }
 
-        #eternal-overlay {
-            position: absolute; inset: 0; background: rgba(0,0,0,0.85); z-index: 40;
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .multiplier-text { font-size: 48px; font-weight: 900; color: var(--gold); text-shadow: 0 0 20px var(--gold); }
+        #scene { position: relative; width: 100%; height: 260px; background: linear-gradient(180deg, #0ea5e9 0%, #38bdf8 100%); border-radius: 24px; overflow: hidden; margin-bottom: 10px; border: 4px solid #1e293b; box-shadow: inset 0 0 50px rgba(0,0,0,0.2); transition: 0.3s; }
+        
+        /* ПТИЦА И ЕЕ АНИМАЦИЯ */
+        #bird-wrap { position: absolute; left: 45px; top: 50%; transform: translateY(-50%); z-index: 10; transition: top 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        #bird { font-size: 55px; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5)); display: inline-block; transition: transform 0.1s; }
+        #bird.flying { animation: wing 0.4s infinite alternate; }
+        #bird.eating { transform: scale(1.3); } /* Анимация увеличения при сборе */
+        
+        @keyframes wing { from { transform: scaleX(-1) rotate(-10deg); } to { transform: scaleX(-1) rotate(10deg); } }
+        
+        #multiplier { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); padding: 8px 20px; border-radius: 20px; font-size: 24px; font-weight: bold; color: var(--yellow); border: 2px solid var(--yellow); box-shadow: 0 0 20px rgba(252, 211, 77, 0.4); display: none; z-index: 20; }
 
-        /* --- MENU & SHOP --- */
-        .grid-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .card-btn {
-            background: #1e293b; padding: 15px; border-radius: 16px; border: none; 
-            text-align: left; cursor: pointer; position: relative; overflow: hidden;
-            transition: transform 0.1s; border: 1px solid #334155;
-        }
-        .card-btn:active { transform: scale(0.98); }
-        .card-btn h3 { margin: 0; font-size: 14px; color: white; display: flex; align-items: center; gap: 5px; }
-        .card-btn p { margin: 5px 0 0; font-size: 10px; color: #94a3b8; }
+        .controls-wrapper { display: flex; flex-direction: column; gap: 8px; padding: 0 5px; }
+        .btn { padding: 12px; border: none; border-radius: 18px; font-weight: bold; color: white; cursor: pointer; transition: 0.1s; border-bottom: 5px solid rgba(0,0,0,0.3); font-size: 11px; text-transform: uppercase; }
+        .btn:active:not(:disabled) { transform: translateY(3px); border-bottom: none; }
+        .btn:disabled { background: #334155 !important; color: #94a3b8; border-bottom: none; opacity: 0.7; }
 
-        .farm-section { display: none; margin-bottom: 20px; }
-        .bird-shop-item {
-            background: #0f172a; padding: 10px; border-radius: 12px; margin-bottom: 8px;
-            display: flex; align-items: center; justify-content: space-between; border: 1px solid #334155;
-        }
-        .buy-btn { background: var(--gold); color: black; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; font-size: 12px; }
+        .btn-free-mini { background: #8b5cf6; width: 60%; margin: 0 auto; padding: 6px; font-size: 10px; border-radius: 12px; border-bottom-width: 3px; }
 
-        /* --- FOOTER --- */
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; width: 100%; background: #020617;
-            padding: 10px 20px; box-sizing: border-box; display: flex; gap: 10px;
-            border-top: 1px solid #334155; z-index: 100;
-        }
-        .cashout-btn {
-            flex: 2; background: linear-gradient(90deg, #fbbf24, #d97706); color: black;
-            border: none; border-radius: 12px; font-weight: 900; font-size: 16px;
-            text-transform: uppercase; letter-spacing: 1px; padding: 15px;
-            animation: pulse-gold 2s infinite;
-        }
-        .ref-btn { flex: 1; background: #1e293b; color: white; border: 1px solid #475569; border-radius: 12px; font-size: 10px; font-weight: bold; }
+        .buy-plate { background: rgba(255,255,255,0.03); border: 1px solid #334155; border-radius: 20px; padding: 15px 8px 8px; position: relative; margin-top: 5px; }
+        .plate-label { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #1e293b; padding: 2px 12px; font-size: 10px; font-weight: bold; color: var(--sky); border-radius: 10px; border: 1px solid #334155; text-transform: uppercase; }
+        .grid-spins { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 
-        /* TOASTS */
-        #toast {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
-            background: rgba(0,0,0,0.9); border: 1px solid var(--gold); border-radius: 30px;
-            padding: 8px 20px; display: flex; align-items: center; gap: 10px; z-index: 2000;
-            transition: 0.5s; backdrop-filter: blur(5px); width: max-content;
-        }
-        #toast.show { transform: translateX(-50%) translateY(0); }
+        .btn-pay { background: #10b981; }
+        .btn-super { background: #6366f1; }
+        .btn-warn { background: #f59e0b; }
 
+        .custom-bet-area { background: #1e293b; border-radius: 20px; padding: 10px; border: 1px solid var(--blue); display: flex; flex-direction: column; gap: 8px; }
+        .custom-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .custom-input { background: #0f172a; border: 1px solid #334155; border-radius: 10px; color: var(--yellow); padding: 8px; width: 80px; text-align: center; font-weight: bold; outline: none; font-size: 14px; }
+        .auto-withdraw-box { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #94a3b8; }
+        .btn-play-custom { background: var(--blue); flex: 1; padding: 10px; border-radius: 15px; border: none; color: white; font-weight: bold; border-bottom: 4px solid #1e40af; text-transform: uppercase; }
+
+        /* FARM & SCHOOL STYLES */
+        .farm-panel { background: #1e293b; border-radius: 20px; padding: 15px; border: 1px solid var(--sky); margin-top: 10px; margin-bottom: 10px; }
+        .farm-card { background: rgba(0,0,0,0.3); border-radius: 15px; padding: 12px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; border: 1px solid #334155; }
+        .farm-info { text-align: left; }
+        .farm-name { font-weight: bold; font-size: 16px; color: var(--sky); }
+        .farm-status { font-size: 10px; color: #94a3b8; }
+        .btn-upgrade { background: var(--green); border: none; padding: 8px 12px; border-radius: 10px; color: white; font-weight: bold; font-size: 11px; cursor: pointer; }
+        
+        .school-panel { background: #0f172a; border-radius: 20px; padding: 15px; border: 1px dashed #64748b; margin-top: 10px; text-align: center; opacity: 0.7; }
+        .school-title { color: #94a3b8; font-weight: bold; font-size: 14px; letter-spacing: 1px; }
+
+        #takeBtn { background: var(--yellow); color: var(--dark); grid-column: span 2; display: none; font-size: 20px; padding: 18px; animation: pulse 1.5s infinite; border-bottom: 6px solid #d97706; width: 100%; border-radius: 20px; border: none; font-weight: 900; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+        .history-panel { margin-top: 15px; background: var(--card); border-radius: 18px; padding: 12px; border: 1px solid #334155; }
+        .history-list { display: flex; flex-direction: column; gap: 6px; max-height: 140px; overflow-y: auto; margin-top: 8px; }
+        .hist-item { display: flex; justify-content: space-between; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 10px; font-size: 11px; border-left: 3px solid transparent; }
+        .hist-win { color: #10b981; font-weight: bold; border-left-color: #10b981; }
+        .hist-crash { color: #f43f5e; font-weight: bold; border-left-color: #f43f5e; }
+
+        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #0f172a; display: grid; grid-template-columns: repeat(5, 1fr); padding: 12px 0; border-top: 1px solid #334155; z-index: 100; }
+        .nav-item { background: none; border: none; color: #94a3b8; font-size: 10px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .nav-item.active { color: var(--sky); }
+        .nav-icon { font-size: 20px; }
+
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; max-width: 320px; background: #1e293b; border: 2px solid #0ea5e9; border-radius: 24px; z-index: 1000; padding: 20px; box-shadow: 0 0 40px rgba(0,0,0,0.9); }
+        .modal-header { margin: 0 0 15px 0; font-size: 18px; font-weight: bold; }
+        
+        .daily-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 15px; }
+        .daily-day { background: rgba(255,255,255,0.05); padding: 8px; border-radius: 10px; font-size: 10px; border: 1px solid #334155; }
+        .daily-day.active { border-color: var(--yellow); background: rgba(252, 211, 77, 0.1); }
+        .daily-day.claimed { opacity: 0.5; border-color: #10b981; }
+        .daily-val { color: var(--yellow); font-weight: bold; display: block; margin-top: 4px; }
+
+        .cloud { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: move linear infinite; filter: blur(2px); }
+        .boom { font-size: 100px; position: absolute; z-index: 100; animation: boom-anim 0.6s ease-out forwards; }
+        @keyframes boom-anim { 0% { transform: scale(0) rotate(0); opacity: 1; } 50% { transform: scale(1.5) rotate(20deg); opacity: 1; } 100% { transform: scale(2.5) rotate(-20deg); opacity: 0; } }
+        @keyframes move { from { right: -120px; } to { right: 120%; } }
+
+        .btn-ticket { background: #fcd34d; color: #020617; width: 100%; padding: 15px; border-radius: 16px; border: none; font-weight: 900; margin-top: 10px; cursor: pointer; }
+        .btn-close-modal { margin-top: 20px; background: #f43f5e; padding: 12px; border-radius: 15px; width: 100%; color: white; border: none; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div id="toast">
-        <div style="width:20px; height:20px; border-radius:50%; background:#ccc;" id="toast-img"></div>
-        <div style="font-size: 12px;">
-            <span id="toast-name" style="font-weight:bold; color:var(--gold)">User</span> 
-            вывел <span id="toast-val" style="color:var(--neon-green)">0 ⭐</span>
-        </div>
-    </div>
+    <div id="fake-alert">🔥 <span id="fake-text"></span></div>
 
-    <div class="top-bar">
-        <div class="online-badge"><div class="online-dot"></div> <span id="online-counter">2,412</span> ONLINE</div>
-        <div>ID: <span id="user-id">884102</span></div>
-    </div>
-
-    <div class="hero-banner">
-        <div class="hero-avatar">👑</div>
-        <div class="hero-info">
-            <div>Герой Битвы</div>
-            <div id="hero-text">Загрузка...</div>
-        </div>
-    </div>
-
-    <div class="balance-card">
-        <div style="font-size: 12px; color: #94a3b8; text-transform: uppercase;">Твой Баланс</div>
-        <div class="balance-val"><span id="balance">0</span> ⭐</div>
+    <div class="header-panel">
+        <div class="season-title">STAR BIRD SEASON 2</div>
+        <div class="total-paid">TOTAL PAYMENTS: 860 000 STARS</div>
         
-        <div class="oxygen-container">
-            <div class="oxygen-label"><span>КИСЛОРОД</span><span id="ox-txt">100%</span></div>
-            <div class="oxygen-bar"><div class="oxygen-fill" id="ox-fill"></div></div>
+        <div class="stats-grid">
+            <div class="stat-box"><div class="label">Кошелек</div><div class="val"><span id="bal">0</span> ⭐</div></div>
+            <div class="stat-box"><div class="label">В полете</div><div class="val" style="color:white"><span id="win">0</span> ⭐</div></div>
         </div>
-        <button onclick="buyOxygen()" style="margin-top:10px; background:rgba(255,255,255,0.1); border:none; color:var(--neon-blue); font-size:10px; padding:6px 15px; border-radius:20px;">⚡ Купить баллон (50⭐)</button>
+        <div class="online-count">🟢 ИГРОКОВ ОНЛАЙН: <span id="online-val">1000</span></div>
+        
+        <div id="league-container" class="league-badge" onclick="showLeagues()">
+            <span class="league-icon" id="league-icon">🥉</span>
+            <span id="league-name" class="league-bronze">Бронзовая лига</span>
+        </div>
+
+        <div class="progress-container">
+            <div id="progress-bar"></div>
+            <div class="progress-text">ДО ВЫВОДА: <span id="prog-val">0</span> / 1000 ⭐</div>
+        </div>
     </div>
 
     <div id="scene">
-        <div id="search-overlay">
-            <div class="radar"><div class="radar-line"></div></div>
-            <div style="color:var(--neon-green); margin-top:15px; font-weight:bold; font-size:14px; letter-spacing:1px;">ПОИСК ПРОТИВНИКА...</div>
-            <div style="color:#64748b; font-size:10px; margin-top:5px;" id="search-status">Сканирование сети...</div>
-        </div>
-
-        <div id="eternal-overlay">
-            <div style="color:#cbd5e1; font-size:12px; margin-bottom:10px;">МНОЖИТЕЛЬ ПОЛЕТА</div>
-            <div class="multiplier-text" id="eternal-mult">x1.00</div>
-            <button onclick="cashoutEternal()" style="margin-top:20px; background:var(--neon-green); border:none; padding:15px 40px; border-radius:15px; font-weight:900; font-size:18px;">ЗАБРАТЬ</button>
-        </div>
-
-        <div id="bird-me" class="bird bird-me">🐦‍⬛</div>
-        <div id="bird-en" class="bird bird-en">🦅</div>
-        <div id="stars-container"></div>
+        <div id="multiplier">x1.00</div>
+        <div id="bird-wrap"><div id="bird" class="flying">🐦‍⬛</div></div>
     </div>
 
-    <div class="grid-menu" id="main-menu">
-        <button class="card-btn" style="background: linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(0,0,0,0)); border-color: rgba(220, 38, 38, 0.3);" onclick="startDuel()">
-            <h3>⚔️ ДУЭЛЬ <span style="font-size:10px; color:#cbd5e1; margin-left:auto">100⭐</span></h3>
-            <p>Риск 100%. Победа или смерть.</p>
-        </button>
-        <button class="card-btn" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(0,0,0,0)); border-color: rgba(16, 185, 129, 0.3);" onclick="toggleFarm()">
-            <h3>🐣 ФЕРМА <span style="font-size:10px; color:#cbd5e1; margin-left:auto">PASSIVE</span></h3>
-            <p>Купи птиц и получай доход.</p>
-        </button>
-        <button class="card-btn" style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(0,0,0,0)); border-color: rgba(37, 99, 235, 0.3);" onclick="startEternal()">
-            <h3>🚀 ВЕЧНЫЙ <span style="font-size:10px; color:#cbd5e1; margin-left:auto">250⭐</span></h3>
-            <p>12 часов полета. Успей забрать.</p>
-        </button>
+    <div class="controls-wrapper" id="controls">
+        <button id="btn-free" class="btn btn-free-mini" onclick="fly(0, 'free')">🚀 БЕСПЛАТНО</button>
+
+        <div class="buy-plate">
+            <div class="plate-label">Купить спин</div>
+            <div class="grid-spins">
+                <button id="btn-spin" class="btn btn-pay" onclick="fly(50, 'spin')">🎰 50 ⭐</button>
+                <button id="btn-super" class="btn btn-super" onclick="fly(150, 'super')">💎 150 ⭐</button>
+                <button id="btn-turbo" class="btn btn-pay" style="background:#059669" onclick="fly(300, 'turbo')">🔥 300 ⭐</button>
+                <button id="btn-energy" class="btn btn-warn" onclick="fly(25, 'energy')">⚡ 25 ⭐</button>
+            </div>
+        </div>
+
+        <div class="custom-bet-area">
+            <div class="custom-row">
+                <div style="text-align:left">
+                    <div style="font-size:9px; color:#94a3b8">СТАВКА (ОТ 10)</div>
+                    <input type="number" id="inp-bet" class="custom-input" value="10" min="10">
+                </div>
+                <div style="text-align:right">
+                    <div style="font-size:9px; color:#94a3b8">АВТО-ВЫВОД ⭐</div>
+                    <input type="number" id="inp-auto" class="custom-input" value="100" min="11">
+                </div>
+            </div>
+            <div class="custom-row">
+                <label class="auto-withdraw-box">
+                    <input type="checkbox" id="chk-auto"> АВТО-СТОП
+                </label>
+                <button class="btn-play-custom" onclick="flyCustom()">ИГРАТЬ ПО СТАВКЕ</button>
+            </div>
+        </div>
+
+        <div class="farm-panel">
+            <div style="font-size:12px; font-weight:bold; margin-bottom:10px; color:var(--sky)">🏘️ МОЯ ФЕРМА (SEASON 2)</div>
+            
+            <div class="farm-card">
+                <div class="farm-info">
+                    <div class="farm-name">Синяя Птица <span id="bird-lvl-tag"></span></div>
+                    <div class="farm-status" id="bird-profit">...</div>
+                </div>
+                <button class="btn-upgrade" id="btn-farm-action" onclick="upgradeBird()">...</button>
+            </div>
+
+            <div class="farm-card" style="border-color: #cbd5e1;">
+                <div class="farm-info">
+                    <div class="farm-name" style="color:#cbd5e1">Белая Птица 🕊️ <span id="white-lvl-tag"></span></div>
+                    <div class="farm-status" id="white-profit">...</div>
+                </div>
+                <button class="btn-upgrade" id="btn-white-action" style="background:#64748b" onclick="upgradeWhiteBird()">...</button>
+            </div>
+        </div>
+
+        <div class="school-panel">
+            <div class="school-title">🎓 ШКОЛА ПТИЦ (СКОРО)</div>
+            <p style="font-size:10px; color:#475569; margin:5px 0 0;">Обучай птиц и повышай их доходность!</p>
+        </div>
     </div>
 
-    <div class="farm-section" id="farm-ui">
-        <div style="text-align:left; font-size:16px; font-weight:bold; margin-bottom:10px; color:var(--neon-green)">МАГАЗИН ПТИЦ</div>
-        <div class="bird-shop-item">
-            <div style="display:flex; gap:10px; align-items:center;"><div style="font-size:24px">🦢</div><div><b>БЕЛАЯ ПТИЦА</b><br><span style="font-size:10px; color:#94a3b8">20 ⭐/час</span></div></div>
-            <button class="buy-btn" onclick="buyBird('white', 250)">250⭐</button>
-        </div>
-        <div class="bird-shop-item">
-            <div style="display:flex; gap:10px; align-items:center;"><div style="font-size:24px">🐦</div><div><b>СИНЯЯ ПТИЦА</b><br><span style="font-size:10px; color:#94a3b8">75 ⭐/час</span></div></div>
-            <button class="buy-btn" onclick="buyBird('blue', 1000)">1000⭐</button>
-        </div>
-        <div class="bird-shop-item" style="border-color:var(--gold); background:rgba(251,191,36,0.05)">
-            <div style="display:flex; gap:10px; align-items:center;"><div style="font-size:24px">🦅</div><div><b style="color:var(--gold)">PRESIDENT</b><br><span style="font-size:10px; color:#94a3b8">150 ⭐/час</span></div></div>
-            <button class="buy-btn" onclick="buyBird('biden', 2000)">2000⭐</button>
-        </div>
-        <button onclick="toggleFarm()" style="width:100%; padding:10px; background:#334155; color:white; border:none; border-radius:10px; margin-top:10px;">НАЗАД</button>
+    <button id="takeBtn" class="btn" onclick="take()">💰 ЗАБРАТЬ ⭐</button>
+
+    <div class="history-panel">
+        <div id="hist-list" class="history-list"></div>
     </div>
 
-    <div class="bottom-nav">
-        <button class="ref-btn" onclick="inviteFriends()">👥 ДРУЗЬЯ<br>+25% O2</button>
-        <button class="cashout-btn" onclick="tryCashout()">ВЫВЕСТИ <span style="font-size:10px; display:block; opacity:0.7">На кошелек</span></button>
+    <nav class="nav-bar">
+        <button class="nav-item active" onclick="location.reload()"><span class="nav-icon">🎮</span>Игра</button>
+        <button class="nav-item" onclick="showLeaderboard()"><span class="nav-icon">📊</span>Топы</button>
+        <button class="nav-item" onclick="checkDaily(true)"><span class="nav-icon">🎁</span>Бонус</button>
+        <button class="nav-item" onclick="showFriends()"><span class="nav-icon">👥</span>Друзья</button>
+        <button class="nav-item" onclick="showGiveaway()"><span class="nav-icon">🏆</span>Розыгрыш</button>
+    </nav>
+
+    <div id="daily-modal" class="modal">
+        <h2 class="modal-header">🎁 ЕЖЕДНЕВНЫЙ БОНУС</h2>
+        <div class="daily-grid" id="daily-grid">
+            <div class="daily-day" id="d-day-1">День 1<span class="daily-val">25</span></div>
+            <div class="daily-day" id="d-day-2">День 2<span class="daily-val">50</span></div>
+            <div class="daily-day" id="d-day-3">День 3<span class="daily-val">75</span></div>
+            <div class="daily-day" id="d-day-4">День 4<span class="daily-val">100</span></div>
+            <div class="daily-day" id="d-day-5">День 5<span class="daily-val">250</span></div>
+            <div class="daily-day" id="d-day-6">День 6<span class="daily-val">275</span></div>
+            <div class="daily-day" id="d-day-7" style="grid-column: span 2;">День 7<span class="daily-val">300 ⭐</span></div>
+        </div>
+        <button id="btn-claim-daily" class="btn-ticket" style="margin-top:20px;" onclick="claimDaily()">ЗАБРАТЬ НАГРАДУ</button>
+        <button class="btn-close-modal" style="background:none; color:#94a3b8" onclick="document.getElementById('daily-modal').style.display='none'">ЗАКРЫТЬ</button>
     </div>
+
+    <div id="friends-modal" class="modal">
+        <h2 style="margin:0; color:white; font-size: 18px;">👥 ВАШИ ДРУЗЬЯ</h2>
+        <p style="font-size: 10px; color: #94a3b8; margin: 5px 0;">150 ⭐ за первых двух друзей, далее по +50 ⭐</p>
+        <div id="friends-list-content"></div>
+        <button class="btn-close-modal" onclick="document.getElementById('friends-modal').style.display='none'">ЗАКРЫТЬ</button>
+    </div>
+
+    <div id="giveaway-modal" class="modal">
+        <h2 style="margin:0; color:#fcd34d; font-size: 18px;">💳 ВЫВОД СРЕДСТВ</h2>
+        <p style="font-size: 11px; color: #94a3b8; margin: 5px 0 15px;">Для вывода необходимо выполнить условия:</p>
+        
+        <div style="text-align:left; background:rgba(0,0,0,0.3); padding:10px; border-radius:10px; margin-bottom:10px;">
+            <div id="cond-1">❌ Баланс 1000 ⭐</div>
+            <div id="cond-2">❌ 5 Друзей</div>
+            <div id="cond-3">❌ Доступ к выводу (150 XTR)</div>
+        </div>
+
+        <button id="btn-buy-withdraw" class="btn-pay" style="width:100%; padding:15px; margin-bottom:10px;" onclick="buyWithdraw()">КУПИТЬ ДОСТУП (150 ⭐)</button>
+        <button id="btn-request-withdraw" class="btn-ticket" onclick="requestWithdraw()" disabled>ЗАПРОСИТЬ ВЫВОД</button>
+        
+        <button class="btn-close-modal" style="background:none; color:#94a3b8" onclick="document.getElementById('giveaway-modal').style.display='none'">ЗАКРЫТЬ</button>
+    </div>
+
+    <div id="leader-modal" class="modal">
+        <h2 style="margin-top:0">📊 ТОП ИГРОКОВ (S2)</h2>
+        <div id="leader-list" style="text-align:left; font-size:14px;"></div>
+        <button class="btn" style="margin-top:15px; background:var(--red); width: 100%;" onclick="closeModals()">ЗАКРЫТЬ</button>
+    </div>
+
+    <div id="league-modal" class="modal">
+        <h2 class="modal-header">🏆 СИСТЕЕМЫ ЛИГ</h2>
+        <div class="league-info-card" style="border-left-color: var(--bronze)"><h4 class="league-bronze">Бронзовая <span>0-1000 ⭐</span></h4><p>Начальный уровень.</p></div>
+        <div class="league-info-card" style="border-left-color: var(--silver)"><h4 class="league-silver">Серебряная <span>1000-5000 ⭐</span></h4><p>Шанс на EPIC WIN +3%</p></div>
+        <div class="league-info-card" style="border-left-color: var(--gold)"><h4 class="league-gold">Золотая <span>5000-10000 ⭐</span></h4><p>Шанс на Крупный Выигрыш +25%</p></div>
+        <div class="league-info-card" style="border-left-color: var(--diamond)"><h4 class="league-diamond">Алмазная <span>10000+ ⭐</span></h4><p>Коэффициенты +30%</p></div>
+        <button class="btn-close-modal" onclick="document.getElementById('league-modal').style.display='none'">ПОНЯТНО</button>
+    </div>
+
+    <audio id="snd_pop" src="https://cdn.pixabay.com/audio/2022/03/15/audio_733678082e.mp3"></audio>
+    <audio id="snd_crash" src="https://cdn.pixabay.com/audio/2021/08/04/audio_bb63008453.mp3"></audio>
+    <audio id="bg_music" loop src="https://www.soundjay.com/free-music/sounds/iron-man-01.mp3"></audio>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // --- CONFIG ---
-        let balance = 500;
-        let oxygen = 100;
-        let farm = { white: 0, blue: 0, biden: 0 };
-        let isGaming = false;
-        let activeInterval = null;
+        const API = "https://humanity-built-follow-hamilton.trycloudflare.com"; 
+        const userId = tg.initDataUnsafe.user?.id || 12345;
+        
+        let balance = 0, flightWin = 0, isGaming = false, seconds = 0, currentMult = 1.0, alreadyTaken = false, crashPoint = 0;
+        let isAutoTake = false, autoTakeVal = 0;
+        let paidWithdraw = false;
 
-        const COSTS = { duel: 100, eternal: 250, oxygen: 50 };
-        const OXYGEN_DRAIN_GAME = 20; // -20% per game
-        const OXYGEN_DRAIN_TICK = 1; // -1% per minute
-        const DEATH_DRAIN = 100; // -100 stars per sec if O2 is 0
+        const dailyRewards = [25, 50, 75, 100, 250, 275, 300];
 
-        // --- INIT ---
-        updateUI();
-        setInterval(fakeNotifications, 5000);
-        setInterval(oxygenLogic, 60000); // 1 min tick
-        setInterval(deathLogic, 1000); // Check 0 oxygen
-        setInterval(farmYield, 1000);
+        // --- FARM LOGIC (WITH CLEAR PRICES) ---
+        let birdLevel = 'none'; // Синяя
+        let whiteBirdLevel = 0; // Белая
 
-        // --- CORE UI ---
-        function updateUI() {
-            document.getElementById('balance').innerText = Math.floor(balance).toLocaleString();
-            document.getElementById('ox-fill').style.width = oxygen + '%';
-            document.getElementById('ox-txt').innerText = oxygen + '%';
-            if(oxygen < 20) document.querySelector('.oxygen-bar').style.boxShadow = "0 0 10px red";
-            else document.querySelector('.oxygen-bar').style.boxShadow = "none";
-        }
+        function updateFarmUI() {
+            // Синяя птица
+            const btn = document.getElementById('btn-farm-action');
+            const profit = document.getElementById('bird-profit');
+            const tag = document.getElementById('bird-lvl-tag');
 
-        // --- OXYGEN SYSTEM ---
-        function oxygenLogic() {
-            if(oxygen > 0) oxygen -= OXYGEN_DRAIN_TICK;
-            updateUI();
-        }
-        function deathLogic() {
-            if(oxygen <= 0 && balance > 0) {
-                balance -= DEATH_DRAIN;
-                if(balance < 0) balance = 0;
-                updateUI();
-                if(Math.random() > 0.8) tg.HapticFeedback.notificationOccurred('error');
+            if(birdLevel === 'none') {
+                tag.innerText = "(Закрыта)"; profit.innerText = "Цена: 300 ⭐ | Доход: 15/день"; btn.innerText = "КУПИТЬ 300";
+            } else if(birdLevel === 'bronze') {
+                tag.innerText = "Бронза"; tag.style.color = "var(--bronze)"; profit.innerText = "Доход: 15 ⭐/день"; btn.innerText = "АПГРЕЙД 300";
+            } else if(birdLevel === 'silver') {
+                tag.innerText = "Серебро"; tag.style.color = "var(--silver)"; profit.innerText = "Доход: 25 ⭐/день"; btn.innerText = "АПГРЕЙД 1000";
+            } else if(birdLevel === 'gold') {
+                tag.innerText = "Золото"; tag.style.color = "var(--gold)"; profit.innerText = "Доход: 100 ⭐"; btn.innerText = "АПГРЕЙД 2500";
+            } else if(birdLevel === 'diamond') {
+                tag.innerText = "Алмаз"; tag.style.color = "var(--diamond)"; profit.innerText = "Доход: 250 ⭐ (MAX)"; btn.style.display = "none";
+            }
+
+            // Белая птица
+            const wBtn = document.getElementById('btn-white-action');
+            const wProfit = document.getElementById('white-profit');
+            const wTag = document.getElementById('white-lvl-tag');
+            
+            if(whiteBirdLevel === 0) {
+                wTag.innerText = "(0)"; wProfit.innerText = "Доход: 0"; wBtn.innerText = "КУПИТЬ 50 (Ур 1)";
+            } else if(whiteBirdLevel === 1) {
+                wTag.innerText = "(1)"; wProfit.innerText = "10 ⭐/день"; wBtn.innerText = "АПГРЕЙД 250";
+            } else if(whiteBirdLevel === 2) {
+                wTag.innerText = "(2)"; wProfit.innerText = "50 ⭐/день"; wBtn.innerText = "АПГРЕЙД 500";
+            } else if(whiteBirdLevel === 3) {
+                wTag.innerText = "(3)"; wProfit.innerText = "100 ⭐/день"; wBtn.innerText = "АПГРЕЙД 1000";
+            } else if(whiteBirdLevel >= 4) {
+                wTag.innerText = "MAX (x2)"; wProfit.innerText = "100 ⭐ + 2 ПТИЦЫ В ИГРЕ"; wBtn.style.display = "none";
             }
         }
-        function buyOxygen() {
-            if(balance >= COSTS.oxygen) {
-                balance -= COSTS.oxygen;
-                oxygen = 100;
-                tg.showAlert("Кислород восстановлен!");
-                updateUI();
-            } else tg.showAlert("Недостаточно средств!");
+
+        function upgradeBird() {
+            let cost = 0, next = '';
+            if(birdLevel === 'none') { cost = 300; next = 'bronze'; }
+            else if(birdLevel === 'bronze') { cost = 300; next = 'silver'; }
+            else if(birdLevel === 'silver') { cost = 1000; next = 'gold'; }
+            else if(birdLevel === 'gold') { cost = 2500; next = 'diamond'; }
+
+            if(cost > 0 && balance >= cost) {
+                balance -= cost; birdLevel = next;
+                updateFarmUI(); syncBalance();
+            } else tg.showAlert("Недостаточно звезд!");
         }
 
-        // --- DUEL MODE (CINEMATIC) ---
-        function startDuel() {
-            if(isGaming) return;
-            if(balance < COSTS.duel) return tg.showAlert("Нужно 100 Stars!");
+        function upgradeWhiteBird() {
+            let cost = 0;
+            if(whiteBirdLevel === 0) cost = 50;
+            else if(whiteBirdLevel === 1) cost = 250;
+            else if(whiteBirdLevel === 2) cost = 500;
+            else if(whiteBirdLevel === 3) cost = 1000;
+
+            if(cost > 0 && balance >= cost) {
+                balance -= cost; whiteBirdLevel++;
+                updateFarmUI(); syncBalance();
+            } else tg.showAlert("Недостаточно звезд!");
+        }
+
+        // --- DAILY BONUS FIXED ---
+        function checkDaily(manual = false) {
+            const now = Date.now();
+            const lastClaim = parseInt(localStorage.getItem('last_daily_claim') || 0);
+            const timeLeft = 86400000 - (now - lastClaim);
+            let streak = parseInt(localStorage.getItem('daily_streak') || 0);
+
+            if (timeLeft <= 0) {
+                document.getElementById('btn-claim-daily').disabled = false;
+                document.getElementById('btn-claim-daily').innerText = "ЗАБРАТЬ НАГРАДУ";
+                if(manual) document.getElementById('daily-modal').style.display = 'block';
+            } else {
+                document.getElementById('btn-claim-daily').disabled = true;
+                if(manual) document.getElementById('daily-modal').style.display = 'block';
+                updateTimer(timeLeft);
+            }
             
-            // PAY & DRAIN
-            balance -= COSTS.duel;
-            oxygen = Math.max(0, oxygen - OXYGEN_DRAIN_GAME);
-            isGaming = true;
-            updateUI();
+            for (let i = 1; i <= 7; i++) {
+                const el = document.getElementById(`d-day-${i}`);
+                el.className = 'daily-day';
+                if (i <= streak) el.classList.add('claimed');
+                if (i === streak + 1) el.classList.add('active');
+            }
+        }
 
-            const me = document.getElementById('bird-me');
-            const en = document.getElementById('bird-en');
-            const scene = document.getElementById('scene');
-            const starsCont = document.getElementById('stars-container');
-            const search = document.getElementById('search-overlay');
-
-            // RESET SCENE
-            me.style.top = '40%'; me.style.transform = 'rotate(0deg)';
-            en.style.display = 'none'; en.style.top = '60%';
-            starsCont.innerHTML = '';
-
-            // 1. SEARCH ANIMATION (5 SEC)
-            search.style.display = 'flex';
-            let sec = 5;
-            const sInt = setInterval(() => {
-                sec--;
-                document.getElementById('search-status').innerText = `Поиск... ${sec} сек`;
-                if(sec <= 0) {
-                    clearInterval(sInt);
-                    search.style.display = 'none';
-                    startDuelGameplay(me, en, starsCont);
-                }
+        function updateTimer(ms) {
+            const btn = document.getElementById('btn-claim-daily');
+            if(window.dailyTimer) clearInterval(window.dailyTimer);
+            window.dailyTimer = setInterval(() => {
+                ms -= 1000;
+                if(ms <= 0) { clearInterval(window.dailyTimer); checkDaily(); return; }
+                const h = Math.floor(ms / 3600000);
+                const m = Math.floor((ms % 3600000) / 60000);
+                const s = Math.floor((ms % 60000) / 1000);
+                btn.innerText = `ЖДИ: ${h}:${m}:${s}`;
             }, 1000);
         }
 
-        function startDuelGameplay(me, en, starsCont) {
-            en.style.display = 'block';
-            let frame = 0;
-            let collected = 0;
-            const isWin = false; // SCAM: Player always loses eventually in this script logic for now, or make it random 15%
+        async function claimDaily() {
+            const btn = document.getElementById('btn-claim-daily');
+            if(btn.disabled) return;
+            btn.disabled = true; 
 
-            activeInterval = setInterval(() => {
-                frame++;
+            try {
+                const r = await fetch(`${API}/claim_daily`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ user_id: userId })
+                });
+                const d = await r.json();
+                if(d.status === 'ok') {
+                    balance = d.new_balance;
+                    localStorage.setItem('daily_streak', parseInt(localStorage.getItem('daily_streak')||0)+1);
+                    localStorage.setItem('last_daily_claim', Date.now());
+                    updateUI();
+                    document.getElementById('daily-modal').style.display = 'none'; 
+                    tg.showAlert("Награда получена!");
+                } else {
+                    tg.showAlert("Еще не время!");
+                    checkDaily(); // Сброс таймера
+                }
+            } catch(e) { btn.disabled = false; }
+        }
+
+        // --- GAME LOGIC ---
+        function fly(cost, type) {
+            if (cost > balance && type !== 'free') { tg.showAlert(`Нужно ${cost} ⭐`); return; }
+            if (type === 'free') localStorage.setItem('free_cooldown', Date.now());
+            document.getElementById('bg_music').volume = 0.2;
+            document.getElementById('bg_music').play().catch(()=>{});
+            updateCooldowns();
+            start(cost, type);
+        }
+
+        function start(cost, type) {
+            isGaming = true; seconds = 0; flightWin = 0; currentMult = 1.0; alreadyTaken = false; 
+            crashPoint = 3 + Math.random() * 8; 
+            if (type !== 'free') balance -= cost;
+            updateUI();
+            
+            document.getElementById('controls').style.display = 'none';
+            document.getElementById('takeBtn').style.display = 'block';
+            document.getElementById('takeBtn').disabled = false;
+            document.getElementById('multiplier').style.display = 'block';
+
+            if(whiteBirdLevel >= 4) {
+                const b2 = document.createElement('div');
+                b2.id = 'bird2';
+                b2.innerText = '🕊️';
+                b2.style.cssText = "position:absolute; font-size:40px; left:45px; top:60%; transition:0.8s;";
+                document.getElementById('scene').appendChild(b2);
+            }
+
+            window.timer = setInterval(() => {
+                seconds += 0.5;
+                createTrail(); 
+                if(document.getElementById('bird2')) {
+                    document.getElementById('bird2').style.top = (30 + Math.random()*40) + '%';
+                    document.getElementById('bird2').style.left = (45 + seconds*2) + 'px';
+                }
+
+                if (alreadyTaken) {
+                    currentMult += 0.2;
+                    document.getElementById('multiplier').innerText = `x${currentMult.toFixed(2)}`;
+                    if (seconds >= crashPoint) { clearInterval(window.timer); end(); }
+                    return;
+                }
                 
-                // MOVEMENT (Sine Wave)
-                me.style.top = (40 + Math.sin(frame/10) * 10) + '%';
-                en.style.top = (60 + Math.cos(frame/12) * 10) + '%';
+                let difficulty = balance >= 900 ? 50.0 : 1.0;
+                let crashChance = (seconds * 0.15) * difficulty;
 
-                // SPAWN STARS
-                if(frame % 20 === 0) {
-                    const s = document.createElement('div');
-                    s.className = 'star-item';
-                    s.innerText = '⭐';
-                    s.style.left = '100%';
-                    s.style.top = (20 + Math.random() * 60) + '%';
-                    starsCont.appendChild(s);
+                if (Math.random() < crashChance) { clearInterval(window.timer); end(); } 
+                else {
+                    currentMult += 0.15;
+                    let base = (type === 'free' ? 5 : (type === 'custom' ? cost : cost/2));
+                    flightWin = Math.floor(base * currentMult);
+                    document.getElementById('win').innerText = flightWin;
+                    document.getElementById('multiplier').innerText = `x${currentMult.toFixed(2)}`;
+                    document.getElementById('bird-wrap').style.top = (25 + Math.random()*50) + '%';
                     
-                    // Move Star
-                    let starLeft = 100;
-                    const moveStar = setInterval(() => {
-                        starLeft -= 2;
-                        s.style.left = starLeft + '%';
-                        if(starLeft < 10) { 
-                            clearInterval(moveStar); 
-                            if(s.parentNode) s.remove(); 
-                            // VISUAL COLLECT
-                            collected += Math.floor(Math.random()*5);
-                            tg.HapticFeedback.impactOccurred('light');
-                        }
-                    }, 20);
-                }
+                    // Анимация увеличения (поедания)
+                    const b = document.getElementById('bird');
+                    b.classList.add('eating');
+                    setTimeout(() => b.classList.remove('eating'), 200);
 
-                // EXPLOSION (SCAM END)
-                if(frame > 150) { // ~5-6 seconds of flight
-                    clearInterval(activeInterval);
-                    finishDuel(me, en);
+                    if (isAutoTake && flightWin >= autoTakeVal) { take(); }
+                    document.getElementById('snd_pop').play().catch(()=>{});
                 }
-
-            }, 50);
+            }, 500);
+        }
+        
+        function take() {
+            if (alreadyTaken) return;
+            alreadyTaken = true;
+            balance += flightWin; updateUI();
+            tg.HapticFeedback.notificationOccurred('success');
+            document.getElementById('takeBtn').disabled = true;
         }
 
-        function finishDuel(me, en) {
-            // EXPLODE PLAYER
-            const boom = document.createElement('div');
-            boom.className = 'explosion';
-            boom.innerText = '💥';
-            boom.style.left = me.style.left;
-            boom.style.top = me.style.top;
-            document.getElementById('scene').appendChild(boom);
-            
-            me.style.display = 'none';
-            document.getElementById('scene').style.animation = 'shake 0.5s';
-            tg.HapticFeedback.notificationOccurred('error');
-
-            // ENEMY FLIES AWAY
-            let enLeft = 20;
-            const flyAway = setInterval(() => {
-                enLeft += 5;
-                en.style.left = enLeft + '%';
-                if(enLeft > 100) {
-                    clearInterval(flyAway);
-                    tg.showAlert("☠️ ВАША ПТИЦА СБИТА! ПРОТИВНИК ЗАБРАЛ БАНК.");
-                    setTimeout(resetGame, 1000);
-                }
-            }, 20);
-
-            setTimeout(() => boom.remove(), 1000);
-        }
-
-        // --- ETERNAL MODE ---
-        function startEternal() {
-            if(isGaming) return;
-            if(balance < COSTS.eternal) return tg.showAlert("Нужно 250 Stars!");
-
-            balance -= COSTS.eternal;
-            oxygen = Math.max(0, oxygen - OXYGEN_DRAIN_GAME);
-            isGaming = true;
-            updateUI();
-
-            document.getElementById('eternal-overlay').style.display = 'flex';
-            document.getElementById('main-menu').style.display = 'none';
-            
-            let mult = 1.00;
-            activeInterval = setInterval(() => {
-                mult += 0.01;
-                document.getElementById('eternal-mult').innerText = 'x' + mult.toFixed(2);
-                
-                // CRASH CHANCE
-                if(Math.random() < 0.02 * mult) { // Higher mult = higher risk
-                    clearInterval(activeInterval);
-                    tg.showAlert("💥 ВЗРЫВ! Вы жадничали и потеряли всё.");
-                    resetGame();
-                }
-            }, 200); // Fast ticks for demo
-        }
-
-        function cashoutEternal() {
-            clearInterval(activeInterval);
-            const mult = parseFloat(document.getElementById('eternal-mult').innerText.replace('x',''));
-            const win = Math.floor(COSTS.eternal * mult);
-            balance += win;
-            tg.showAlert(`💰 ВЫВЕДЕНО: ${win} Stars`);
-            resetGame();
-        }
-
-        // --- UTILS ---
-        function resetGame() {
+        function end() {
+            clearInterval(window.timer);
             isGaming = false;
-            document.getElementById('bird-me').style.display = 'block';
-            document.getElementById('bird-en').style.display = 'none';
-            document.getElementById('search-overlay').style.display = 'none';
-            document.getElementById('eternal-overlay').style.display = 'none';
-            document.getElementById('main-menu').style.display = 'grid';
-            updateUI();
+            if(document.getElementById('bird2')) document.getElementById('bird2').remove();
+
+            const b = document.createElement('div');
+            b.className = 'boom'; b.innerText = '💥';
+            b.style.left = '50px'; b.style.top = document.getElementById('bird-wrap').style.top;
+            document.getElementById('scene').appendChild(b);
+            document.getElementById('snd_crash').play().catch(()=>{});
+            setTimeout(() => { b.remove(); }, 600);
+            
+            document.getElementById('controls').style.display = 'flex';
+            document.getElementById('takeBtn').style.display = 'none';
+            document.getElementById('multiplier').style.display = 'none';
+            document.getElementById('win').innerText = 0;
+            updateUI(); syncBalance();
         }
 
-        function toggleFarm() {
-            const menu = document.getElementById('main-menu');
-            const farm = document.getElementById('farm-ui');
-            if(farm.style.display === 'block') {
-                farm.style.display = 'none'; menu.style.display = 'grid';
+        // --- SCAM NOTIFICATIONS & RANDOM LEADERBOARD ---
+        const fakeNames = ["Titan", "CryptoLord", "ElonM", "Whale_99", "LuckyGuy", "Anna_Pro", "Satoshi", "Winner2026"];
+        function showFakeAlert() {
+            const name = fakeNames[Math.floor(Math.random()*fakeNames.length)];
+            const win = Math.floor(Math.random() * (2000 - 150 + 1)) + 150; // От 150 до 2000
+            document.getElementById('fake-text').innerText = `🔥 ${name} выиграл ${win} ⭐!`;
+            const alert = document.getElementById('fake-alert');
+            alert.classList.add('show');
+            setTimeout(() => alert.classList.remove('show'), 4000);
+        }
+        setInterval(showFakeAlert, 12000);
+
+        function showLeaderboard() {
+            const list = document.getElementById('leader-list');
+            list.innerHTML = "";
+            const topNames = ["Alpha", "Beta", "Omega", "Richie", "StarKing"];
+            topNames.forEach((n, i) => {
+                const score = Math.floor(Math.random() * 50000) + 10000;
+                list.innerHTML += `<div style="padding:8px; border-bottom:1px solid #334155; display:flex; justify-content:space-between;"><span>${i+1}. ${n}</span> <span style="color:#fcd34d; font-weight:bold;">${score} ⭐</span></div>`;
+            });
+            document.getElementById('leader-modal').style.display = 'block';
+        }
+
+        // --- WITHDRAW LOGIC ---
+        function showGiveaway() { 
+            const cond1 = document.getElementById('cond-1');
+            const cond2 = document.getElementById('cond-2');
+            const cond3 = document.getElementById('cond-3');
+            
+            cond1.innerText = balance >= 1000 ? "✅ Баланс 1000+" : "❌ Баланс 1000+";
+            cond2.innerText = "✅ 5 Друзей (Тест)"; 
+            cond3.innerText = paidWithdraw ? "✅ Доступ куплен" : "❌ Доступ к выводу";
+
+            const btnReq = document.getElementById('btn-request-withdraw');
+            const btnBuy = document.getElementById('btn-buy-withdraw');
+
+            if(paidWithdraw) {
+                btnBuy.style.display = 'none';
+                btnReq.disabled = !(balance >= 1000);
             } else {
-                farm.style.display = 'block'; menu.style.display = 'none';
+                btnBuy.style.display = 'block';
+                btnReq.disabled = true;
+            }
+            document.getElementById('giveaway-modal').style.display = 'block'; 
+        }
+
+        function buyWithdraw() {
+            tg.close();
+            fetch(`${API}/create_withdraw_invoice`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({user_id: userId})
+            });
+            tg.showAlert("Счет выставлен в боте! Оплатите 150 ⭐");
+        }
+
+        function requestWithdraw() { tg.showAlert("Заявка отправлена администратору!"); }
+
+        // --- SYNC ---
+        async function syncBalance() {
+            fetch(`${API}/update_balance`, { 
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ user_id: userId, balance: balance, bird_level: birdLevel, white_bird_level: whiteBirdLevel }) 
+            }).catch(()=>{});
+        }
+
+        function updateCooldowns() {
+            const now = Date.now();
+            const freeLast = localStorage.getItem('free_cooldown') || 0;
+            const freeLeft = (8 * 3600 * 1000) - (now - freeLast);
+            const btnFree = document.getElementById('btn-free');
+            if (freeLeft > 0) {
+                btnFree.disabled = true;
+                btnFree.innerText = `⏳ ${new Date(freeLeft).toISOString().substr(11, 5)}`;
+            } else {
+                btnFree.disabled = false;
+                btnFree.innerText = `🚀 БЕСПЛАТНО`;
             }
         }
 
-        function buyBird(type, cost) {
-            if(balance >= cost) {
-                balance -= cost; farm[type]++; updateUI();
-                tg.showAlert("Птица куплена!");
-            } else tg.showAlert("Не хватает денег!");
+        function flyCustom() {
+            const bet = parseInt(document.getElementById('inp-bet').value);
+            if (bet < 10) { tg.showAlert("Минимальная ставка 10 ⭐"); return; }
+            if (bet > balance) { tg.showAlert("Недостаточно звезд!"); return; }
+            isAutoTake = document.getElementById('chk-auto').checked;
+            autoTakeVal = parseInt(document.getElementById('inp-auto').value);
+            fly(bet, 'custom');
         }
 
-        function farmYield() {
-            const p = (farm.white*20 + farm.blue*75 + farm.biden*150)/3600;
-            if(p>0) { balance+=p; updateUI(); }
+        function createTrail() {
+            const trail = document.createElement('div'); trail.innerText = '✨'; 
+            trail.style.cssText = `position:absolute; left:45px; top:${document.getElementById('bird-wrap').style.top}; font-size:15px; opacity:0.8; transition:all 0.8s linear;`;
+            document.getElementById('scene').appendChild(trail);
+            setTimeout(() => { trail.style.left = '-100px'; trail.style.opacity = '0'; setTimeout(() => trail.remove(), 800); }, 50);
         }
-
-        // FAKE TOASTS
-        function fakeNotifications() {
-            const names = ["Alex", "Winner_99", "CryptoGod", "Elon", "Durov"];
-            const n = names[Math.floor(Math.random()*names.length)];
-            const v = Math.floor(Math.random()*5000)+100;
-            const t = document.getElementById('toast');
-            document.getElementById('toast-name').innerText = n;
-            document.getElementById('toast-val').innerText = v + " ⭐";
-            document.getElementById('toast-img').style.background = `hsl(${Math.random()*360},70%,50%)`;
-            t.classList.add('show');
-            setTimeout(()=>t.classList.remove('show'), 3000);
-            
-            // Hero update
-            const h = document.getElementById('hero-text');
-            h.innerText = `${n} (${Math.floor(Math.random()*100)} побед)`;
-            document.getElementById('online-counter').innerText = (Math.floor(Math.random()*8000)+2000).toLocaleString();
+        function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
+        function showLeagues() { document.getElementById('league-modal').style.display = 'block'; }
+        function showFriends() { document.getElementById('friends-modal').style.display = 'block'; }
+        function createClouds() {
+            for(let i=0; i<6; i++){
+                let c = document.createElement('div'); c.className = 'cloud';
+                c.style.cssText = `width:60px; height:20px; top:${Math.random()*210}px; right:-120px; animation: move ${5+Math.random()*5}s linear infinite;`;
+                document.getElementById('scene').appendChild(c);
+            }
         }
+        
+        // ИНИЦИАЛИЗАЦИЯ
+        createClouds();
+        setInterval(() => {
+            const base = 9400; const rand = Math.floor(Math.random()*200 - 100);
+            document.getElementById('online-val').innerText = base + rand;
+        }, 3000);
 
-        function inviteFriends() { tg.showAlert("Ссылка скопирована! (Invite logic)"); }
-        function tryCashout() { tg.showAlert("❌ Ошибка соединения с блокчейном. Попробуйте позже."); }
-
+        fetch(`${API}/get_user?user_id=${userId}`).then(r => r.json()).then(d => { 
+            balance = d.balance || 0; 
+            birdLevel = d.bird_level || 'none';
+            whiteBirdLevel = d.white_bird_level || 0;
+            paidWithdraw = d.paid_withdraw || false;
+            updateUI(); updateFarmUI(); checkDaily();
+        });
+        setInterval(updateCooldowns, 1000);
     </script>
 </body>
 </html>
